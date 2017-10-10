@@ -1,4 +1,7 @@
 Library/
+obj/
+.vs/
 
 *.bin
 *.info
+*.cache

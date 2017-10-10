@@ -670,7 +670,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  handCards: []
+  handCards:
+  - {fileID: 0}
   deckCards:
   - {fileID: 929905152}
   - {fileID: 731992403}
@@ -681,6 +682,7 @@ MonoBehaviour:
   - {fileID: 2144315960}
   - {fileID: 1480948013}
   - {fileID: 1595687185}
+  tombCards: []
   myHpText: {fileID: 0}
   combinationMagnification: 0
   combinationText: {fileID: 0}

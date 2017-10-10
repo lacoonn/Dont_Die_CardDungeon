@@ -4,32 +4,32 @@ using UnityEngine;
 
 [System.Serializable]
 public class Battle : MonoBehaviour {
+    // 배틀 보드 인스턴스
 	public static Battle instance;
 
+    // 포지션 관련 변수
     public List<Transform> monsterPos = new List<Transform>();
 
-    //public List<Transform> fieldPos = new List<Transform> ();
-    //public Transform[] fieldPos = new Transform[3];
     public Transform[] fieldPos;
-
     public List<Transform> handPos = new List<Transform> ();
 	public Transform deckPos;
 
     public Transform tombPos;
 
 
-
+    // 게임 오브젝트 변수
     public List<GameObject> monsters = new List<GameObject>();
 
-    //public GameObject[] fieldCards = new List<GameObject> ();
     public GameObject[] fieldCards;
-    public List<GameObject> handCards = new List<GameObject>();
+    public GameObject[] handCards;
     public List<GameObject> deckCards = new List<GameObject>();
 
-    
+    public List<GameObject> tombCards = new List<GameObject>();
 
-	public TextMesh myHpText;
+    // 체력 바 텍스트
+    public TextMesh myHpText;
 
+    // 조합 배율 & 텍스트
     public double combinationMagnification;
     public TextMesh combinationText;
 
@@ -101,71 +101,86 @@ public class Battle : MonoBehaviour {
     // 카드를 덱에서 특정 Status로 드로우한다.
 	public void DrawCardFromDeck(CardBase.Status goalStatus)
 	{
+        GameObject tempCard;
+
         // 덱에 카드가 없으면 셔플
         if (deckCards.Count != 0)
             shuffleDeck();
 
         if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
         {
-            Debug.Log(fieldPos.Length);
             // 모든 fieldCard를 검사해서 NULL이 있으면 그것의 자리를 메운다
             for (int i = 0; i < fieldCards.Length; i++)
             {
                 if (fieldCards[i] == null)
                 {
-                    GameObject tempCard = deckCards[0];
+                    tempCard = deckCards[0];
                     deckCards.Remove(tempCard);
 
                     tempCard.GetComponent<CardBase>().newPos = fieldPos[i].position;
                     tempCard.GetComponent<CardBase>().status = CardBase.Status.inField;
                     tempCard.GetComponent<CardBase>().index = i;
-                    if (i == 0)
-                        tempCard.GetComponent<CardBase>().positionIndex = CardBase.PositionIndex.Field0;
-                    if (i == 1)
-                        tempCard.GetComponent<CardBase>().positionIndex = CardBase.PositionIndex.Field1;
-                    if (i == 2)
-                        tempCard.GetComponent<CardBase>().positionIndex = CardBase.PositionIndex.Field2;
+
                     fieldCards[i] = tempCard;
                 }
             }
         }
         else if (goalStatus == CardBase.Status.inHand)
         {
-            GameObject tempCard = deckCards[0];
-            deckCards.Remove(tempCard);
+            for (int i = 0; i < handCards.Length; i++)
+            {
+                if (handCards[i] == null)
+                {
+                    tempCard = deckCards[0];
+                    deckCards.Remove(tempCard);
 
-            tempCard.GetComponent<CardBase>().newPos = handPos[0].position;
-            tempCard.GetComponent<CardBase>().status = CardBase.Status.inHand;
-            tempCard.GetComponent<CardBase>().positionIndex = CardBase.PositionIndex.Hand0;
+                    tempCard.GetComponent<CardBase>().newPos = handPos[i].position;
+                    tempCard.GetComponent<CardBase>().status = CardBase.Status.inHand;
+                    tempCard.GetComponent<CardBase>().index = i;
 
-            handCards.Add(tempCard);
+                    handCards[i] = tempCard;
+                }
+            }
         }
         UpdateGame();
+    }
+
+    public void cardToTomb(GameObject cardObject)
+    {
+        CardBase cardComponent = cardObject.GetComponent<CardBase>();
+
+        if (cardComponent.status == CardBase.Status.inField)
+        {
+            Debug.Log("Field To Tomb");
+            // 카드 소속 이동
+            fieldCards[cardComponent.index] = null;
+            tombCards.Add(cardObject);
+            // 카드 정보 변경
+            cardComponent.index = tombCards.IndexOf(cardObject); // 인덱스 업데이트
+            cardComponent.status = CardBase.Status.inTomb; // 상태 업데이트
+            Vector3 tempPosition = tombPos.position; // 카드의 뉴포즈를 무덤 밑으로 변경
+            tempPosition.z++;
+            cardComponent.newPos = tempPosition;
+        }
+        else if (cardComponent.status == CardBase.Status.inHand)
+        {
+            Debug.Log("Hand To Tomb");
+            // 카드 소속 이동
+            handCards[cardComponent.index] = null;
+            tombCards.Add(cardObject);
+            // 카드 정보 변경
+            cardComponent.index = tombCards.IndexOf(cardObject); // 인덱스 업데이트
+            cardComponent.status = CardBase.Status.inTomb; // 상태 업데이트
+            Vector3 tempPosition = tombPos.position; // 카드의 뉴포즈를 무덤 밑으로 변경
+            tempPosition.z++;
+            cardComponent.newPos = tempPosition;
+        }
     }
 
     public void shuffleDeck()
     {
 
     }
-
-	/*public void checkPlace(CardBase cardBase) // 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
-    {
-        Vector3 currentCardPosition = cardBase.transform.position;
-        currentCardPosition.z = 0; // 거리를 측정하기 위해 z값을 통일해준다
-
-        // 필드의 다른 카드와 겹치는지 확인
-        foreach (GameObject tempCard in deckCards)
-        {
-            Vector3 tempCardPosition = tempCard.transform.position;
-            tempCardPosition.z = 0; // 거리를 측정하기 위해 z값을 통일해준다
-            float distance = Vector3.Distance(currentCardPosition, tempCardPosition);
-        }
-        // 핸드의 다른 카드와 겹치는지 확인
-
-        // 묘지와 겹치는지 확인
-
-
-    }*/
 
     public void checkPlace(GameObject cardObject) // 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
     {
@@ -195,17 +210,21 @@ public class Battle : MonoBehaviour {
                 Debug.Log("Same Card(생략)");
             }
         }
+
         // 핸드의 다른 카드와 겹치는지 확인
-        Debug.Log(handCards.Count);
-        tempCardPosition = handCards[0].transform.position;
-        tempCardPosition.z = 0; // 거리를 측정하기 위해 z값을 통일해준다
-        distance = Vector3.Distance(currentCardPosition, tempCardPosition);
-        if (distance < 1)
+        if (handCards[0] != cardObject)
         {
-            Debug.Log("Swap with hand");
-            swapCards(cardObject, handCards[0]); // 카드 교체
-            return;
+            tempCardPosition = handCards[0].transform.position;
+            tempCardPosition.z = 0; // 거리를 측정하기 위해 z값을 통일해준다
+            distance = Vector3.Distance(currentCardPosition, tempCardPosition);
+            if (distance < 1)
+            {
+                Debug.Log("Swap with hand");
+                swapCards(cardObject, handCards[0]); // 카드 교체
+                return;
+            }
         }
+
         // 묘지와 겹치는지 확인
         tempCardPosition = tombPos.transform.position;
         tempCardPosition.z = 0; // 거리를 측정하기 위해 z값을 통일해준다
@@ -213,54 +232,50 @@ public class Battle : MonoBehaviour {
         if (distance < 1)
         {
             Debug.Log("Card to tomb");
-            // 카드 버림
+            CardBase.Status tempStatus = cardObject.GetComponent<CardBase>().status;
+            cardToTomb(cardObject); // 카드 버림
+            DrawCardFromDeck(tempStatus); // 카드 드로우
             return;
         }
-
     }
 
     public void swapCards(GameObject card0, GameObject card1)
     {
         GameObject tempCard = Instantiate(card1) as GameObject;
-        Debug.Log(card1.GetComponent<CardBase>().status);
         // 카드 1을 0의 자리로
         if (card0.GetComponent<CardBase>().status == CardBase.Status.inField)
         {
-            Debug.Log("hand to field");
+            //Debug.Log("hand to field");
             fieldCards[card0.GetComponent<CardBase>().index] = card1;
+            //카드 0의 속성과 같아야 하는 부분(뉴포즈, 상태, 인덱스)
             fieldCards[card0.GetComponent<CardBase>().index].GetComponent<CardBase>().newPos = card0.GetComponent<CardBase>().newPos;
-            //카드 0의 속성과 같아야 하는 부분(포지션, 상태, 인덱스)
-            //fieldCards[card0.GetComponent<CardBase>().index].transform.position = card0.transform.position;
             fieldCards[card0.GetComponent<CardBase>().index].GetComponent<CardBase>().status = card0.GetComponent<CardBase>().status;
             fieldCards[card0.GetComponent<CardBase>().index].GetComponent<CardBase>().index = card0.GetComponent<CardBase>().index;
         }
         else
         {
             handCards[0] = card1;
+            //카드 0의 속성과 같아야 하는 부분(뉴포즈, 상태, 인덱스)
             handCards[0].GetComponent<CardBase>().newPos = card0.GetComponent<CardBase>().newPos;
-            //카드 0의 속성과 같아야 하는 부분(포지션, 상태)
-            //handCards[0].transform.position = card0.transform.position;
             handCards[0].GetComponent<CardBase>().status = card0.GetComponent<CardBase>().status;
             handCards[0].GetComponent<CardBase>().index = card0.GetComponent<CardBase>().index;
         }
-        Debug.Log(card1.GetComponent<CardBase>().status);
+
         // 카드 0을 1의 자리로
         if (tempCard.GetComponent<CardBase>().status == CardBase.Status.inField) 
         {
             fieldCards[tempCard.GetComponent<CardBase>().index] = card0;
             //카드 1의 속성과 같아야 하는 부분(뉴포즈, 상태, 인덱스)
             fieldCards[tempCard.GetComponent<CardBase>().index].GetComponent<CardBase>().newPos = tempCard.GetComponent<CardBase>().newPos;
-            //fieldCards[tempCard.GetComponent<CardBase>().index].transform.position = tempCard.transform.position;
             fieldCards[tempCard.GetComponent<CardBase>().index].GetComponent<CardBase>().status = tempCard.GetComponent<CardBase>().status;
             fieldCards[tempCard.GetComponent<CardBase>().index].GetComponent<CardBase>().index = tempCard.GetComponent<CardBase>().index;
         }
         else
         {
-            Debug.Log("field to hand");
+            //Debug.Log("field to hand");
             handCards[0] = card0;
             //카드 1의 속성과 같아야 하는 부분(뉴포즈, 상태, 인덱스)
             handCards[0].GetComponent<CardBase>().newPos = tempCard.GetComponent<CardBase>().newPos;
-            //handCards[0].transform.position = tempCard.transform.position;
             handCards[0].GetComponent<CardBase>().status = tempCard.GetComponent<CardBase>().status;
             handCards[0].GetComponent<CardBase>().index = tempCard.GetComponent<CardBase>().index;
         }

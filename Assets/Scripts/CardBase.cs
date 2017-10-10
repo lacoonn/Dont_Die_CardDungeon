@@ -22,13 +22,11 @@ public class CardBase : MonoBehaviour {
 		inDeck,
 		inTomb
 	};
-    public enum PositionIndex { Field0, Field1, Field2, Hand0, Deck };
     public int index = 0; // 카드가 속한 곳에서 몇번째에 있는지 저장하는 변수
-		
+
 	public Seal seal;
 	public Job job;
     public Status status = Status.inDeck;
-    public PositionIndex positionIndex; // 몇 번째 pos에 있는 카드인지 비교하기 위한 변수
 
     public string cardName;
 	public string description;
@@ -59,10 +57,15 @@ public class CardBase : MonoBehaviour {
 		if (!Selected)
 		{
 			transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 3);
-			if (status != Status.inDeck)
+            if (status == Status.inTomb || status == Status.inDeck)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 0.0f, 0.0f), Time.deltaTime * 3);
+            }
+            else
 			{
 				transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 180.0f, 0.0f), Time.deltaTime * 3);
 			}
+            
 		}
 	}
 
