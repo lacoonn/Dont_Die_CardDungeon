@@ -30,8 +30,9 @@ public class CardBase : MonoBehaviour {
 
     public string cardName;
 	public string description;
-	public int attack;
-	public int heal;
+	public int attackPoint;
+	public int healPoint;
+    public int healthPoint;
     public bool GenerateRandomeData = false;
     public bool canPlay = false;
 
@@ -53,20 +54,26 @@ public class CardBase : MonoBehaviour {
 
 	void FixedUpdate()
 	{
-        // 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.
-		if (!Selected)
-		{
-			transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 3);
-            if (status == Status.inTomb || status == Status.inDeck)
+        attackText.text = attackPoint.ToString();
+        healText.text = healPoint.ToString();
+
+        if (Battle.instance.gameState == Battle.GameState.Default)
+        {
+            // 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.
+            if (!Selected)
             {
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 0.0f, 0.0f), Time.deltaTime * 3);
+                transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 3);
+                if (status == Status.inTomb || status == Status.inDeck)
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 0.0f, 0.0f), Time.deltaTime * 3);
+                }
+                else
+                {
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 180.0f, 0.0f), Time.deltaTime * 3);
+                }
+
             }
-            else
-			{
-				transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 180.0f, 0.0f), Time.deltaTime * 3);
-			}
-            
-		}
+        }
 	}
 
 	public void PlaceCard()
@@ -90,7 +97,7 @@ public class CardBase : MonoBehaviour {
         Debug.Log("onMouseUp()");
 		Selected = false;
         // 다른 카드와 겹쳐있으면 그 카드와 원래의 위치를 변경
-        Battle.instance.checkPlace(gameObject);
+        Battle.instance.CheckPlace(gameObject);
 
     }
 	void OnMouseOver()
@@ -122,7 +129,7 @@ public class CardBase : MonoBehaviour {
     {
 		if (attacker.canPlay)
 		{
-			target.hp -= attacker.attack;
+			target.hp -= attacker.attackPoint;
 
 			action();
 			if (addhistory)
@@ -186,8 +193,9 @@ public class CardBase : MonoBehaviour {
         temp.index = this.index;
 		temp.cardName = this.cardName;
 		temp.description = this.description;
-		temp.attack = this.attack;
-		temp.heal = this.heal;
+		temp.attackPoint = this.attackPoint;
+		temp.healPoint = this.healPoint;
+        temp.healthPoint = this.healthPoint;
         temp.GenerateRandomeData = this.GenerateRandomeData;
 		temp.canPlay = this.canPlay;
 		temp.newPos = this.newPos;

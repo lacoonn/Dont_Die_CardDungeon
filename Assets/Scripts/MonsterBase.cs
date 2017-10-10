@@ -9,6 +9,8 @@ public class MonsterBase : MonoBehaviour
     public int hp;
     public int attack;
 
+    public Vector3 homePosition;
+
     // Use this for initialization
     void Start()
     {
@@ -21,5 +23,8 @@ public class MonsterBase : MonoBehaviour
         {
             Destroy(this);
         }
+
+
+        transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
     }
 }

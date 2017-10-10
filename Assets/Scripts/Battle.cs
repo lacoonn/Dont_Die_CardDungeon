@@ -7,8 +7,12 @@ public class Battle : MonoBehaviour {
     // 배틀 보드 인스턴스
 	public static Battle instance;
 
+    // 게임 상태
+    public enum GameState { Default, Shuffling, Card0Attacking, Card1Attacking, Card2Attacking, MonsterAttacking };
+    public GameState gameState;
+
     // 포지션 관련 변수
-    public List<Transform> monsterPos = new List<Transform>();
+    public Transform monsterPos;
 
     public Transform[] fieldPos;
     public List<Transform> handPos = new List<Transform> ();
@@ -18,7 +22,8 @@ public class Battle : MonoBehaviour {
 
 
     // 게임 오브젝트 변수
-    public List<GameObject> monsters = new List<GameObject>();
+    //public List<GameObject> monsters = new List<GameObject>();
+    public GameObject monster;
 
     public GameObject[] fieldCards;
     public GameObject[] handCards;
@@ -40,7 +45,6 @@ public class Battle : MonoBehaviour {
     public MonsterBase targetMonster;
 
     public List<Hashtable> boardHistory = new List<Hashtable>();
-    
 
     void Awake()
 	{
@@ -50,11 +54,22 @@ public class Battle : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        // 게임스테이트 초기화
+        gameState = GameState.Default;
+
+        // 몬스터 초기화
+        monster.transform.position = monsterPos.position;
+        monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;
+
         // 모든 카드를 덱으로 이동
         int zPos = 0;
         foreach (GameObject gameObject in deckCards)
         {
             CardBase cardBase = gameObject.GetComponent<CardBase>();
+            // 나중에 지우기
+            cardBase.attackPoint = Random.Range(1, 9);
+            cardBase.healPoint = Random.Range(1, 9);
+            // 나중에 지우기
             cardBase.status = CardBase.Status.inDeck;
             cardBase.newPos = deckPos.position;
             cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
@@ -103,9 +118,10 @@ public class Battle : MonoBehaviour {
 	{
         GameObject tempCard;
 
-        // 덱에 카드가 없으면 셔플
-        if (deckCards.Count != 0)
-            shuffleDeck();
+        if (deckCards.Count == 0) // 덱에 카드가 없으면 셔플
+        {
+            ShuffleDeck();
+        }
 
         if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
         {
@@ -145,7 +161,7 @@ public class Battle : MonoBehaviour {
         UpdateGame();
     }
 
-    public void cardToTomb(GameObject cardObject)
+    public void CardToTomb(GameObject cardObject)
     {
         CardBase cardComponent = cardObject.GetComponent<CardBase>();
 
@@ -177,12 +193,24 @@ public class Battle : MonoBehaviour {
         }
     }
 
-    public void shuffleDeck()
+    public void ShuffleDeck()
     {
-
+        while (tombCards.Count > 0)
+        {
+            // 무덤에서 랜덤카드 획득
+            int random = Random.Range(0, tombCards.Count - 1);
+            GameObject tempCard = tombCards[random];
+            // 무덤에서 카드를 제거하고 덱에 추가
+            tombCards.RemoveAt(random);
+            deckCards.Add(tempCard);
+            // 카드의 뉴포즈, 상태, 인덱스 업데이트
+            tempCard.GetComponent<CardBase>().newPos = deckPos.position;
+            tempCard.GetComponent<CardBase>().status = CardBase.Status.inDeck;
+            tempCard.GetComponent<CardBase>().index = deckCards.IndexOf(tempCard);
+        }
     }
 
-    public void checkPlace(GameObject cardObject) // 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
+    public void CheckPlace(GameObject cardObject) // 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
     {
         Vector3 currentCardPosition = cardObject.transform.position;
         currentCardPosition.z = 0; // 거리를 측정하기 위해 z값을 통일해준다
@@ -201,7 +229,7 @@ public class Battle : MonoBehaviour {
                 if (distance < 1)
                 {
                     Debug.Log("Swap with field");
-                    swapCards(cardObject, tempCard); // 카드 교체
+                    SwapCards(cardObject, tempCard); // 카드 교체
                     return;
                 }
             }
@@ -220,7 +248,7 @@ public class Battle : MonoBehaviour {
             if (distance < 1)
             {
                 Debug.Log("Swap with hand");
-                swapCards(cardObject, handCards[0]); // 카드 교체
+                SwapCards(cardObject, handCards[0]); // 카드 교체
                 return;
             }
         }
@@ -233,13 +261,15 @@ public class Battle : MonoBehaviour {
         {
             Debug.Log("Card to tomb");
             CardBase.Status tempStatus = cardObject.GetComponent<CardBase>().status;
-            cardToTomb(cardObject); // 카드 버림
+            CardToTomb(cardObject); // 카드 버림
+
             DrawCardFromDeck(tempStatus); // 카드 드로우
+
             return;
         }
     }
 
-    public void swapCards(GameObject card0, GameObject card1)
+    public void SwapCards(GameObject card0, GameObject card1)
     {
         GameObject tempCard = Instantiate(card1) as GameObject;
         // 카드 1을 0의 자리로
