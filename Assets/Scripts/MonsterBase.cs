@@ -1,30 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+[System.Serializable]
 public class MonsterBase : MonoBehaviour
 {
     public string monsterName;
     public string discription;
-    public int hp;
-    public int attack;
+
+    public int healthPoint;
+    public int attackPoint;
+
+
+    public TextMesh healthText;
 
     public Vector3 homePosition;
 
     // Use this for initialization
     void Start()
     {
-
+        healthText.text = healthPoint.ToString();
     }
 
-    void FixedUpdate()
+    private void Update()
     {
-        if (hp <= 0)
-        {
-            Destroy(this);
-        }
+        healthText.text = healthPoint.ToString();
+    }
 
-
+    private void FixedUpdate()
+    {
+        healthText.text = healthPoint.ToString();
         transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
     }
 }

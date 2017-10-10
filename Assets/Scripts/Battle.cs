@@ -8,7 +8,7 @@ public class Battle : MonoBehaviour {
 	public static Battle instance;
 
     // 게임 상태
-    public enum GameState { Default, Shuffling, Card0Attacking, Card1Attacking, Card2Attacking, MonsterAttacking };
+    public enum GameState { Default, Shuffling, CardAttacking, CardAttacked, MonsterAttacking };
     public GameState gameState;
 
     // 포지션 관련 변수
@@ -32,14 +32,18 @@ public class Battle : MonoBehaviour {
     public List<GameObject> tombCards = new List<GameObject>();
 
     // 체력 바 텍스트
-    public TextMesh myHpText;
+    public int healthPoint = 0;
+    public TextMesh healthText;
 
     // 조합 배율 & 텍스트
-    public double combinationMagnification;
+    public double combination = 1;
     public TextMesh combinationText;
 
     public bool gameStarted = true;
 	public int turnNumber = 1;
+
+    // 현재 공격중인 카드
+    public GameObject attackingCard;
 
 	public CardBase currentCard;
     public MonsterBase targetMonster;
@@ -66,14 +70,25 @@ public class Battle : MonoBehaviour {
         foreach (GameObject gameObject in deckCards)
         {
             CardBase cardBase = gameObject.GetComponent<CardBase>();
-            // 나중에 지우기
-            cardBase.attackPoint = Random.Range(1, 9);
-            cardBase.healPoint = Random.Range(1, 9);
-            // 나중에 지우기
+            // 나중에 지우기 - 카드에 공, 힐, 체 할당
+            cardBase.baseAttackPoint = Random.Range(1, 9);
+            cardBase.attackPoint = cardBase.baseAttackPoint;
+            cardBase.baseHealPoint = Random.Range(1, 9);
+            cardBase.healPoint = cardBase.baseHealPoint;
+            cardBase.baseHealthPoint = Random.Range(1, 9);
+            cardBase.healthPoint = cardBase.baseHealthPoint;
+            // 나중에 지우기 - 여기까지
             cardBase.status = CardBase.Status.inDeck;
             cardBase.newPos = deckPos.position;
             cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
+
+            // 플레이어 체력에 카드 체력 추가
+            this.healthPoint += cardBase.healthPoint;
         }
+
+        // 텍스트매쉬 초기화
+        healthText.text = healthPoint.ToString();
+        combinationText.text = combination.ToString();
 
         // 카드를 필드로 드로우
         for (int i = 0; i < 3; i++)
@@ -84,10 +99,18 @@ public class Battle : MonoBehaviour {
         DrawCardFromDeck(CardBase.Status.inHand);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        // 텍스트매쉬 초기화
+        //healthText.text = healthPoint.ToString();
+        //combinationText.text = combination.ToString();
+    }
 
+    private void FixedUpdate()
+    {
+        // 텍스트매쉬 초기화
+        //healthText.text = healthPoint.ToString();
+        //combinationText.text = combination.ToString();
     }
 
     public void AddHistory(CardBase a, MonsterBase b)
@@ -120,7 +143,9 @@ public class Battle : MonoBehaviour {
 
         if (deckCards.Count == 0) // 덱에 카드가 없으면 셔플
         {
-            ShuffleDeck();
+            StartCoroutine(ShuffleDeck(goalStatus));
+
+            return; // 묘지의 카드를 셔플하고 카드들이 덱 위치로 갈 동안 기다릴 방법이 없다...
         }
 
         if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
@@ -138,6 +163,8 @@ public class Battle : MonoBehaviour {
                     tempCard.GetComponent<CardBase>().index = i;
 
                     fieldCards[i] = tempCard;
+
+                    break;
                 }
             }
         }
@@ -155,51 +182,26 @@ public class Battle : MonoBehaviour {
                     tempCard.GetComponent<CardBase>().index = i;
 
                     handCards[i] = tempCard;
+
+                    break;
                 }
             }
         }
-        UpdateGame();
+
+        // 카드를 드로우 한 뒤 조합 상태를 확인
+        UpdateCombination();
     }
 
-    public void CardToTomb(GameObject cardObject)
+    // 무덤의 카드를 덱으로 섞는다.
+    IEnumerator ShuffleDeck(CardBase.Status goalStatus)
     {
-        CardBase cardComponent = cardObject.GetComponent<CardBase>();
+        GameObject tempCard;
 
-        if (cardComponent.status == CardBase.Status.inField)
-        {
-            Debug.Log("Field To Tomb");
-            // 카드 소속 이동
-            fieldCards[cardComponent.index] = null;
-            tombCards.Add(cardObject);
-            // 카드 정보 변경
-            cardComponent.index = tombCards.IndexOf(cardObject); // 인덱스 업데이트
-            cardComponent.status = CardBase.Status.inTomb; // 상태 업데이트
-            Vector3 tempPosition = tombPos.position; // 카드의 뉴포즈를 무덤 밑으로 변경
-            tempPosition.z++;
-            cardComponent.newPos = tempPosition;
-        }
-        else if (cardComponent.status == CardBase.Status.inHand)
-        {
-            Debug.Log("Hand To Tomb");
-            // 카드 소속 이동
-            handCards[cardComponent.index] = null;
-            tombCards.Add(cardObject);
-            // 카드 정보 변경
-            cardComponent.index = tombCards.IndexOf(cardObject); // 인덱스 업데이트
-            cardComponent.status = CardBase.Status.inTomb; // 상태 업데이트
-            Vector3 tempPosition = tombPos.position; // 카드의 뉴포즈를 무덤 밑으로 변경
-            tempPosition.z++;
-            cardComponent.newPos = tempPosition;
-        }
-    }
-
-    public void ShuffleDeck()
-    {
         while (tombCards.Count > 0)
         {
             // 무덤에서 랜덤카드 획득
             int random = Random.Range(0, tombCards.Count - 1);
-            GameObject tempCard = tombCards[random];
+            tempCard = tombCards[random];
             // 무덤에서 카드를 제거하고 덱에 추가
             tombCards.RemoveAt(random);
             deckCards.Add(tempCard);
@@ -208,6 +210,52 @@ public class Battle : MonoBehaviour {
             tempCard.GetComponent<CardBase>().status = CardBase.Status.inDeck;
             tempCard.GetComponent<CardBase>().index = deckCards.IndexOf(tempCard);
         }
+        yield return new WaitForSeconds(1f);
+
+        
+        //////////////////////////// 이어서 카드 한 장을 드로우한다
+        if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
+        {
+            // 모든 fieldCard를 검사해서 NULL이 있으면 그것의 자리를 메운다
+            for (int i = 0; i < fieldCards.Length; i++)
+            {
+                if (fieldCards[i] == null)
+                {
+                    tempCard = deckCards[0];
+                    deckCards.Remove(tempCard);
+
+                    tempCard.GetComponent<CardBase>().newPos = fieldPos[i].position;
+                    tempCard.GetComponent<CardBase>().status = CardBase.Status.inField;
+                    tempCard.GetComponent<CardBase>().index = i;
+
+                    fieldCards[i] = tempCard;
+
+                    break;
+                }
+            }
+        }
+        else if (goalStatus == CardBase.Status.inHand)
+        {
+            for (int i = 0; i < handCards.Length; i++)
+            {
+                if (handCards[i] == null)
+                {
+                    tempCard = deckCards[0];
+                    deckCards.Remove(tempCard);
+
+                    tempCard.GetComponent<CardBase>().newPos = handPos[i].position;
+                    tempCard.GetComponent<CardBase>().status = CardBase.Status.inHand;
+                    tempCard.GetComponent<CardBase>().index = i;
+
+                    handCards[i] = tempCard;
+
+                    break;
+                }
+            }
+        }
+
+        // 카드를 드로우 한 뒤 조합 상태를 확인
+        UpdateCombination();
     }
 
     public void CheckPlace(GameObject cardObject) // 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
@@ -217,6 +265,17 @@ public class Battle : MonoBehaviour {
 
         Vector3 tempCardPosition;
         float distance;
+        
+        // 공격 확인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (currentCardPosition.y > 1 && cardObject.GetComponent<CardBase>().status == CardBase.Status.inField)
+        {
+            Debug.Log("Attack!!!!!!!!!!!!!!!!!!!!!");
+            //AttackPhase();
+            cardObject.transform.position = cardObject.GetComponent<CardBase>().newPos;
+            StartCoroutine(AttackPhase());
+            //MonoBehaviour.StartCoroutine("MakeMissile");
+            return;
+        }
 
         // 필드의 다른 카드와 겹치는지 확인
         foreach (GameObject tempCard in fieldCards)
@@ -229,6 +288,7 @@ public class Battle : MonoBehaviour {
                 if (distance < 1)
                 {
                     Debug.Log("Swap with field");
+                    cardObject.transform.position = cardObject.GetComponent<CardBase>().newPos;
                     SwapCards(cardObject, tempCard); // 카드 교체
                     return;
                 }
@@ -248,6 +308,7 @@ public class Battle : MonoBehaviour {
             if (distance < 1)
             {
                 Debug.Log("Swap with hand");
+                cardObject.transform.position = cardObject.GetComponent<CardBase>().newPos;
                 SwapCards(cardObject, handCards[0]); // 카드 교체
                 return;
             }
@@ -260,6 +321,7 @@ public class Battle : MonoBehaviour {
         if (distance < 1)
         {
             Debug.Log("Card to tomb");
+            cardObject.transform.position = cardObject.GetComponent<CardBase>().newPos;
             CardBase.Status tempStatus = cardObject.GetComponent<CardBase>().status;
             CardToTomb(cardObject); // 카드 버림
 
@@ -268,6 +330,67 @@ public class Battle : MonoBehaviour {
             return;
         }
     }
+
+    IEnumerator AttackPhase()
+    {
+        // 전투!!!
+        for (int i = 0; i < fieldCards.Length; i++)
+        {
+            gameState = GameState.CardAttacking;
+            attackingCard = fieldCards[i];
+            yield return new WaitForSeconds(0.5f);
+            //fieldCards[i].GetComponent<CardBase>().AttackMonster(monster, null);
+        }
+        gameState = GameState.Default;
+        
+        // 턴 종료
+        EndTurn();
+        
+        // 무덤으로!!!
+        for (int i = 0; i < fieldCards.Length; i++)
+        {
+            CardToTomb(fieldCards[i]);
+        }
+        
+        // 드로우!!!
+        for (int i = 0; i < fieldCards.Length; i++)
+        {
+            DrawCardFromDeck(CardBase.Status.inField);
+        }
+    }
+
+    public void CardToTomb(GameObject cardObject)
+    {
+        CardBase cardComponent = cardObject.GetComponent<CardBase>();
+
+        if (cardComponent.status == CardBase.Status.inField)
+        {
+            Debug.Log("Field To Tomb");
+            // 카드 소속 이동
+            fieldCards[cardComponent.index] = null;
+            tombCards.Add(cardObject);
+            // 카드 정보 변경
+            cardComponent.index = tombCards.IndexOf(cardObject); // 인덱스 업데이트
+            cardComponent.status = CardBase.Status.inTomb; // 상태 업데이트
+            Vector3 tempPosition = tombPos.position; // 카드의 뉴포즈를 무덤 밑으로 변경
+            tempPosition.z += 100;
+            cardComponent.newPos = tempPosition;
+        }
+        else if (cardComponent.status == CardBase.Status.inHand)
+        {
+            Debug.Log("Hand To Tomb");
+            // 카드 소속 이동
+            handCards[cardComponent.index] = null;
+            tombCards.Add(cardObject);
+            // 카드 정보 변경
+            cardComponent.index = tombCards.IndexOf(cardObject); // 인덱스 업데이트
+            cardComponent.status = CardBase.Status.inTomb; // 상태 업데이트
+            Vector3 tempPosition = tombPos.position; // 카드의 뉴포즈를 무덤 밑으로 변경
+            tempPosition.z++;
+            cardComponent.newPos = tempPosition;
+        }
+    }
+
 
     public void SwapCards(GameObject card0, GameObject card1)
     {
@@ -309,173 +432,54 @@ public class Battle : MonoBehaviour {
             handCards[0].GetComponent<CardBase>().status = tempCard.GetComponent<CardBase>().status;
             handCards[0].GetComponent<CardBase>().index = tempCard.GetComponent<CardBase>().index;
         }
-        
+        //임시 카드 오브젝트 파괴
         Destroy(tempCard);
+
+        // 카드의 위치를 바꾼 뒤의 조합 상태를 확인
+        UpdateCombination();
     }
 
-    /*void drawMyLine(Vector3 start, Vector3 end, Color color, float duration = 0.2f)
-	{
+    // 필드에 있는 카드들의 조합 상태를 확인하고 필드, 핸드의 카드들의 수치를 업데이트한다.
+    public void UpdateCombination()
+    {
+        // 필드에 카드가 3장 다 차있지 않을 경우 예외처리
+        for(int i = 0; i < fieldCards.Length; i++)
+        {
+            if (fieldCards[i] == null)
+                return;
+        }
+        // 핸드에 카드가 없을 경우 예외처리
+        for (int i = 0; i < handCards.Length; i++)
+        {
+            if (handCards[i] == null)
+                return;
+        }
+        // 필드의 카드들에 조합 배율 적용
+        for (int i = 0; i < fieldCards.Length; i++)
+        {
+            CardBase cardBase = fieldCards[i].GetComponent<CardBase>();
 
-		StartCoroutine(drawLine(start, end, color, duration));
+            cardBase.attackPoint = (int)(cardBase.baseAttackPoint * combination);
+            cardBase.healPoint = (int)(cardBase.baseHealPoint * combination);
+            cardBase.healthPoint = (int)(cardBase.baseHealthPoint * combination);
+        }
+        // 핸드의 카드에 조합 배율 제거
+        for (int i = 0; i < handCards.Length; i++)
+        {
+            CardBase cardBase = handCards[i].GetComponent<CardBase>();
 
-	}
-	IEnumerator drawLine(Vector3 start, Vector3 end, Color color, float duration = 0.2f)
-	{
-		GameObject myLine = new GameObject();
-		myLine.transform.position = start;
-		myLine.AddComponent<LineRenderer>();
-		LineRenderer lr = myLine.GetComponent<LineRenderer>();
-		lr.material = new Material(Shader.Find("Particles/Additive"));
-		lr.SetColors(color, color);
-		lr.SetWidth(0.1f, 0.1f);
-		lr.SetVertexCount(3);
-		lr.SetPosition(0, start);
-		lr.SetPosition(1,(( (-start+ end)*0.5f+start))+new Vector3(0,0,-5.0f));
-		lr.SetPosition(2, end);
-		yield return new WaitForSeconds(duration);
-		GameObject.Destroy(myLine);
-	}*/
+            cardBase.attackPoint = cardBase.baseAttackPoint;
+            cardBase.healPoint = cardBase.baseHealPoint;
+            cardBase.healthPoint = cardBase.baseHealthPoint;
+        }
+    }
+    
 
     void UpdateGame()
 	{
 		//UpdateBoard();
 	}
 
-	public void PlaceCard(CardBase card)
-	{
-        /*
-		if (card.team == CardBehaviourScript.Team.My && MyMana - card.mana >= 0 && MyTableCards.Count < 10)
-		{
-			//card.gameObject.transform.position = MyTablePos.position;
-			card.GetComponent<CardBehaviourScript>().newPos = MyTablePos.position;
-
-			MyHandCards.Remove(card.gameObject);
-			MyTableCards.Add(card.gameObject);
-
-			card.SetCardStatus(CardBehaviourScript.CardStatus.OnTable);
-			//PlaySound(cardDrop);
-
-			if (card.cardtype == CardBehaviourScript.CardType.Magic)///Apply Magic Effect 
-			{
-				card.canPlay = true;
-				if (card.cardeffect == CardBehaviourScript.CardEffect.ToAll)
-				{
-					card.AddToAll(card,true, delegate { card.Destroy(card); });
-				}
-				else if (card.cardeffect == CardBehaviourScript.CardEffect.ToEnemies)
-				{
-					card.AddToEnemies(card,AITableCards,true, delegate { card.Destroy(card); });
-				}
-			}
-
-			MyMana -= card.mana;
-		}
-
-		if (card.team == CardBehaviourScript.Team.AI && AIMana - card.mana >= 0 && AITableCards.Count < 10)
-		{
-			//card.gameObject.transform.position = AITablePos.position;
-			card.GetComponent<CardBehaviourScript>().newPos = AITablePos.position;
-
-			AIHandCards.Remove(card.gameObject);
-			AITableCards.Add(card.gameObject);
-
-			card.SetCardStatus(CardBehaviourScript.CardStatus.OnTable);
-			//PlaySound(cardDrop);
-
-			if (card.cardtype == CardBehaviourScript.CardType.Magic)///Apply Magic Effect 
-			{
-				card.canPlay = true;
-				if (card.cardeffect == CardBehaviourScript.CardEffect.ToAll)
-				{
-					card.AddToAll(card,true, delegate { card.Destroy(card); });
-				}
-				else if (card.cardeffect == CardBehaviourScript.CardEffect.ToEnemies)
-				{
-					card.AddToEnemies(card,MyTableCards,true, delegate { card.Destroy(card); });
-				}
-			}
-
-			AIMana -= card.mana;
-		}*/
-
-        UpdateGame();
-	}
-    /*
-	public void PlaceRandomCard(CardBehaviourScript.Team team)
-	{
-		if (team == CardBehaviourScript.Team.My && MyHandCards.Count != 0)
-		{
-			int random = Random.Range(0, MyHandCards.Count);
-			GameObject tempCard = MyHandCards[random];
-
-			PlaceCard(tempCard.GetComponent<CardBehaviourScript>());
-		}
-
-		if (team == CardBehaviourScript.Team.AI && AIHandCards.Count != 0)
-		{
-			int random = Random.Range(0, AIHandCards.Count);
-			GameObject tempCard = AIHandCards[random];
-
-			PlaceCard(tempCard.GetComponent<CardBehaviourScript>());
-		}
-
-		UpdateGame();
-		EndTurn();
-
-		TablePositionUpdate();
-		HandPositionUpdate();
-	}
-	public void EndGame(HeroBehaviourScript winner)
-	{
-		if (winner == MyHero)
-		{
-			Debug.Log("MyHero");
-			Time.timeScale = 0;
-			winnertext.text = "You Won";
-			//Destroy(this);
-		}
-
-		if (winner == AIHero)
-		{
-			Time.timeScale = 0;
-			Debug.Log("AIHero");
-			winnertext.text = "You Losse";
-			//Destroy(this);
-		}
-	}
-	void OnGUI()
-	{
-		if (gameStarted)
-		{
-			if (turn == Turn.MyTurn)
-			{
-				if (GUI.Button(new Rect(Screen.width - 200, Screen.height / 2 - 50, 100, 50), "End Turn"))
-				{
-					EndTurn();
-				}
-			}
-
-			GUI.Label(new Rect(Screen.width-200, Screen.height / 2 - 100, 100, 50), "Turn: " + turn + " Turn Number: " + turnNumber.ToString());
-
-			foreach (Hashtable history in boardHistory)
-			{
-				foreach (DictionaryEntry entry in history)
-				{
-					CardGameBase card1 = entry.Key as CardGameBase;
-					CardGameBase card2 = entry.Value as CardGameBase;
-
-					GUILayout.Label(card1._name + " > " + card2._name);
-				}
-			}
-			if (boardHistory.Count > 25)
-			{
-				Hashtable temp;
-				temp = boardHistory[boardHistory.Count - 1];
-				boardHistory.Clear();
-				boardHistory.Add(temp);
-			}
-		}
-	}*/
 	void EndTurn()
 	{
 		turnNumber += 1;
@@ -486,15 +490,5 @@ public class Battle : MonoBehaviour {
 	void OnNewTurn()
 	{
 		UpdateGame();
-	}
-	
-	void OnTriggerEnter(Collider Obj)
-	{
-		CardBase card = Obj.GetComponent<CardBase>();
-		if (card)
-		{
-			card.PlaceCard();
-		}
-
 	}
 }

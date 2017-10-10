@@ -217,8 +217,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1679411823627250}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.08, y: 0.04, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 3.43, y: 0.25, z: 0}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_Children:
   - {fileID: 4702208369782648}
   - {fileID: 4105129228993240}
@@ -345,7 +345,7 @@ Transform:
   m_GameObject: {fileID: 1471125145655720}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 2, z: 1}
+  m_LocalScale: {x: 1.3675736, y: 1.8234315, z: 0.91171575}
   m_Children: []
   m_Father: {fileID: 4702208369782648}
   m_RootOrder: 1
@@ -823,15 +823,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bebe83aa370f1904d9850bf7447e55df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  index: 0
   seal: 0
   job: 0
   status: 2
   cardName: 
   description: 
-  attack: 0
-  heal: 0
+  attackPoint: 0
+  healPoint: 0
+  healthPoint: 0
   GenerateRandomeData: 0
   canPlay: 0
-  attackText: {fileID: 0}
-  healText: {fileID: 0}
+  attackText: {fileID: 102451675696985748}
+  healText: {fileID: 102901443854735856}
   newPos: {x: -2.5, y: -4.68, z: 20}

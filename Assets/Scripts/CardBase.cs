@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 [System.Serializable]
 public class CardBase : MonoBehaviour {
@@ -30,7 +29,12 @@ public class CardBase : MonoBehaviour {
 
     public string cardName;
 	public string description;
-	public int attackPoint;
+
+    public int baseAttackPoint;
+    public int baseHealPoint;
+    public int baseHealthPoint;
+
+    public int attackPoint;
 	public int healPoint;
     public int healthPoint;
     public bool GenerateRandomeData = false;
@@ -52,7 +56,13 @@ public class CardBase : MonoBehaviour {
         distance_to_screen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
     }
 
-	void FixedUpdate()
+    private void Update()
+    {
+        attackText.text = attackPoint.ToString();
+        healText.text = healPoint.ToString();
+    }
+
+    void FixedUpdate()
 	{
         attackText.text = attackPoint.ToString();
         healText.text = healPoint.ToString();
@@ -74,16 +84,26 @@ public class CardBase : MonoBehaviour {
 
             }
         }
-	}
+        else if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+        {
+            if (gameObject == Battle.instance.attackingCard)
+            {
+                float distance = Vector3.Distance(transform.position, Battle.instance.monsterPos.position);
+                if (distance < 2)
+                {
+                    Debug.Log("CardBase : distance < 2");
+                    //Battle.instance.gameState = Battle.GameState.CardAttackEnd;
+                    AttackMonster(Battle.instance.monster, null);
+                    Battle.instance.gameState = Battle.GameState.CardAttacked;
+                }
+                else
+                {
+                    transform.position = Vector3.Lerp(transform.position, Battle.instance.monsterPos.position, Time.deltaTime * 3);
+                }
+            }
+        }
 
-	public void PlaceCard()
-	{
-		if (status == Status.inHand && status == Status.inField)
-		{
-			//Selected = false;
-			Battle.instance.PlaceCard(this);
-		}
-	}
+    }
 
 	void OnMouseDown()
 	{
@@ -125,19 +145,16 @@ public class CardBase : MonoBehaviour {
         }
     }
 
-	public void AttackMonster(CardBase attacker, MonsterBase target, bool addhistory, CustomAction action) // 몬스터를 공격!!
+    public void AttackMonster(GameObject target, CustomAction action) // 몬스터를 공격!!
     {
-		if (attacker.canPlay)
-		{
-			target.hp -= attacker.attackPoint;
+        Debug.Log("Attack");
+        target.GetComponent<MonsterBase>().healthPoint -= attackPoint;
 
-			action();
-			if (addhistory)
-				Battle.instance.AddHistory(attacker, target);
-		}
-	}
+        //action();
+        Battle.instance.AddHistory(this, target.GetComponent<MonsterBase>());
+    }
 
-	public void Destroy(CardBase card)
+    public void Destroy(CardBase card)
 	{
 		if (card)
 		{
