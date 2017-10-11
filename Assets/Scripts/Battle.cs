@@ -4,8 +4,16 @@ using UnityEngine;
 
 [System.Serializable]
 public class Battle : MonoBehaviour {
-    // 배틀 보드 인스턴스
+    // 배틀 인스턴스
 	public static Battle instance;
+
+    // 조합 배율
+    public int DOUBLE = 2; // Seal이 같은 카드가 두 장
+    public int TRIPLE = 5; // Seal이 같은 카드가 세 장
+    public int STRAIGHT = 3; // Seal이 종류별로 세 장
+    public int DUO = 2; // 직업이 같은 카드가 두 장
+    public int TRIO = 5; // 직업이 같은 카드가 세 장
+    public int COLLABORATION = 3; // 직업이 종류별로 세 장
 
     // 게임 상태
     public enum GameState { Default, Shuffling, CardAttacking, CardAttacked, MonsterAttacking };
@@ -13,33 +21,33 @@ public class Battle : MonoBehaviour {
 
     // 포지션 관련 변수
     public Transform monsterPos;
-
     public Transform[] fieldPos;
-    public List<Transform> handPos = new List<Transform> ();
+    public Transform[] handPos;
 	public Transform deckPos;
-
     public Transform tombPos;
 
-
     // 게임 오브젝트 변수
-    //public List<GameObject> monsters = new List<GameObject>();
     public GameObject monster;
-
     public GameObject[] fieldCards;
     public GameObject[] handCards;
     public List<GameObject> deckCards = new List<GameObject>();
-
     public List<GameObject> tombCards = new List<GameObject>();
 
-    // 체력 바 텍스트
+    // 체력 변수
     public int healthPoint = 0;
-    public TextMesh healthText;
+    public int maxHealthPoint = 0;
+    
+    // 조합 배율 변수
+    public float baseCombination = 1;
+    public float combination = 1;
 
-    // 조합 배율 & 텍스트
-    public double combination = 1;
+    // 텍스트 매쉬
+    public TextMesh healthText;
     public TextMesh combinationText;
 
     public bool gameStarted = true;
+
+    // 턴
 	public int turnNumber = 1;
 
     // 현재 공격중인 카드
@@ -75,7 +83,7 @@ public class Battle : MonoBehaviour {
             cardBase.attackPoint = cardBase.baseAttackPoint;
             cardBase.baseHealPoint = Random.Range(1, 9);
             cardBase.healPoint = cardBase.baseHealPoint;
-            cardBase.baseHealthPoint = Random.Range(1, 9);
+            cardBase.baseHealthPoint = Random.Range(10, 90);
             cardBase.healthPoint = cardBase.baseHealthPoint;
             // 나중에 지우기 - 여기까지
             cardBase.status = CardBase.Status.inDeck;
@@ -83,8 +91,9 @@ public class Battle : MonoBehaviour {
             cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
 
             // 플레이어 체력에 카드 체력 추가
-            this.healthPoint += cardBase.healthPoint;
+            maxHealthPoint += cardBase.healthPoint;
         }
+        healthPoint = maxHealthPoint; // 시작은 최대체력으로!
 
         // 텍스트매쉬 초기화
         healthText.text = healthPoint.ToString();
@@ -109,8 +118,8 @@ public class Battle : MonoBehaviour {
     private void FixedUpdate()
     {
         // 텍스트매쉬 초기화
-        //healthText.text = healthPoint.ToString();
-        //combinationText.text = combination.ToString();
+        healthText.text = healthPoint.ToString() + "/" + maxHealthPoint.ToString();
+        combinationText.text = combination.ToString();
     }
 
     public void AddHistory(CardBase a, MonsterBase b)
@@ -143,7 +152,7 @@ public class Battle : MonoBehaviour {
 
         if (deckCards.Count == 0) // 덱에 카드가 없으면 셔플
         {
-            StartCoroutine(ShuffleDeck(goalStatus));
+            StartCoroutine(ShuffleDeckAndDraw(goalStatus));
 
             return; // 묘지의 카드를 셔플하고 카드들이 덱 위치로 갈 동안 기다릴 방법이 없다...
         }
@@ -193,7 +202,7 @@ public class Battle : MonoBehaviour {
     }
 
     // 무덤의 카드를 덱으로 섞는다.
-    IEnumerator ShuffleDeck(CardBase.Status goalStatus)
+    IEnumerator ShuffleDeckAndDraw(CardBase.Status goalStatus)
     {
         GameObject tempCard;
 
@@ -333,6 +342,12 @@ public class Battle : MonoBehaviour {
 
     IEnumerator AttackPhase()
     {
+        // 카드 위치 초기화
+        for (int i = 0; i < fieldCards.Length; i++)
+        {
+            fieldCards[i].transform.position = fieldPos[i].position;
+            fieldCards[i].transform.rotation = new Quaternion(0, 180, 0, 0);
+        }
         // 전투!!!
         for (int i = 0; i < fieldCards.Length; i++)
         {
@@ -342,7 +357,10 @@ public class Battle : MonoBehaviour {
             //fieldCards[i].GetComponent<CardBase>().AttackMonster(monster, null);
         }
         gameState = GameState.Default;
-        
+
+        // 몬스터 공격!
+        monster.GetComponent<MonsterBase>().AttackPlayer();
+
         // 턴 종료
         EndTurn();
         
@@ -373,7 +391,7 @@ public class Battle : MonoBehaviour {
             cardComponent.index = tombCards.IndexOf(cardObject); // 인덱스 업데이트
             cardComponent.status = CardBase.Status.inTomb; // 상태 업데이트
             Vector3 tempPosition = tombPos.position; // 카드의 뉴포즈를 무덤 밑으로 변경
-            tempPosition.z += 100;
+            tempPosition.z++;
             cardComponent.newPos = tempPosition;
         }
         else if (cardComponent.status == CardBase.Status.inHand)
@@ -454,6 +472,55 @@ public class Battle : MonoBehaviour {
             if (handCards[i] == null)
                 return;
         }
+        
+        // 필드의 카드들이 어떤 조합인지 확인 및 조합 배율 업데이트
+        combination = baseCombination;
+        int J = 0, Q = 0, K = 0, KNIGHT = 0, WIZARD = 0, PRIEST = 0; // 각각의 각인, 직업 숫자를 저장할 변수
+        for (int i = 0; i < fieldCards.Length; i++) // // 각각의 각인, 직업 숫자를 파악
+        {
+            CardBase cardBase = fieldCards[i].GetComponent<CardBase>();
+            if (cardBase.seal == CardBase.Seal.J)
+                J++;
+            if (cardBase.seal == CardBase.Seal.Q)
+                Q++;
+            if (cardBase.seal == CardBase.Seal.K)
+                K++;
+            if (cardBase.job == CardBase.Job.Knight)
+                KNIGHT++;
+            if (cardBase.job == CardBase.Job.Wizard)
+                WIZARD++;
+            if (cardBase.job == CardBase.Job.Priest)
+                PRIEST++;
+        }
+        if (J == 2) // 파악한 갯수에 맞게 조합 배율 업데이트 => 각인
+            combination *= DOUBLE;
+        if (Q == 2)
+            combination *= DOUBLE;
+        if (K == 2)
+            combination *= DOUBLE;
+        if (J == 3)
+            combination *= TRIPLE;
+        if (Q == 3)
+            combination *= TRIPLE;
+        if (K == 3)
+            combination *= TRIPLE;
+        if (J == 1 && Q == 1 && K == 1)
+            combination *= STRAIGHT;
+        if (KNIGHT == 2) // 파악한 갯수에 맞게 조합 배율 업데이트 => 직업
+            combination *= DUO;
+        if (WIZARD == 2)
+            combination *= DUO;
+        if (PRIEST == 2)
+            combination *= DUO;
+        if (KNIGHT == 3)
+            combination *= TRIO;
+        if (WIZARD == 3)
+            combination *= TRIO;
+        if (PRIEST == 3)
+            combination *= TRIO;
+        if (KNIGHT == 1 && WIZARD == 1 && PRIEST == 1)
+            combination *= COLLABORATION;
+
         // 필드의 카드들에 조합 배율 적용
         for (int i = 0; i < fieldCards.Length; i++)
         {

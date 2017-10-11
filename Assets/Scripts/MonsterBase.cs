@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 [System.Serializable]
 public class MonsterBase : MonoBehaviour
@@ -7,6 +9,8 @@ public class MonsterBase : MonoBehaviour
     public string discription;
 
     public int healthPoint;
+    public int maxHealthPoint;
+
     public int attackPoint;
 
 
@@ -15,19 +19,24 @@ public class MonsterBase : MonoBehaviour
     public Vector3 homePosition;
 
     // Use this for initialization
-    void Start()
+    public void Start()
     {
-        healthText.text = healthPoint.ToString();
+        healthPoint = maxHealthPoint;
     }
 
-    private void Update()
+    public void Update()
     {
-        healthText.text = healthPoint.ToString();
+        healthText.text = healthPoint.ToString() + "/" + maxHealthPoint.ToString();
     }
 
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
-        healthText.text = healthPoint.ToString();
         transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
+    }
+
+    public void AttackPlayer()
+    {
+        Debug.Log("Monster attack player!");
+        Battle.instance.healthPoint -= attackPoint;
     }
 }

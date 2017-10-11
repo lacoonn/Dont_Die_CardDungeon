@@ -4,12 +4,4 @@ using UnityEngine;
 
 public class Monster : MonsterBase {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-
-	void FixedUpdate () {
-		
-	}
 }

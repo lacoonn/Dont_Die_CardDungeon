@@ -1,72 +1,66 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 [System.Serializable]
 public class CardBase : MonoBehaviour {
-	public enum Seal
-    {
-		J,
-		Q,
-		K
-	};
-	public enum Job
-    {
-		Knight,
-		Wizard,
-		Priest
-	};
-	public enum Status
-    {
-        inField,
-		inHand,
-		inDeck,
-		inTomb
-	};
-    public int index = 0; // 카드가 속한 곳에서 몇번째에 있는지 저장하는 변수
-
-	public Seal seal;
-	public Job job;
+    // 각인
+    public enum Seal { J, Q, K };
+    public Seal seal;
+    
+    // 직업
+    public enum Job { Knight, Wizard, Priest };
+    public Job job;
+    
+    // 상태
+    public enum Status { inField, inHand, inDeck, inTomb };
     public Status status = Status.inDeck;
 
+    // 카드가 속한 상태 배열에서 몇 번째에 있는지 저장하는 변수
+    public int index = 0;
+
+    // 카드 이름 및 설명
     public string cardName;
 	public string description;
 
+    // 공격 후 카드 능력치 초기화에 사용되는 변수
     public int baseAttackPoint;
     public int baseHealPoint;
     public int baseHealthPoint;
 
+    // 실제 적용되는 가드 능력치
     public int attackPoint;
 	public int healPoint;
     public int healthPoint;
-    public bool GenerateRandomeData = false;
-    public bool canPlay = false;
 
+    // 텍스트 매쉬
 	public TextMesh attackText;
 	public TextMesh healText;
 
+    // 카드의 위치가 수렴하는 장소(카드가 항상 이 장소로 이동하기 위해 움직임)
 	public Vector3 newPos;
 
-	float distance_to_screen;
+	float distanceToScreen;
+
+    // 카드가 선택(터치)되어있는지 판별
 	bool Selected = false;
 
     public delegate void CustomAction();
 
     // Use this for initialization
-    void Start () {
-        //distance_to_screen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z - 1;
-        distance_to_screen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
+    public void Start ()
+    {
+        distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
     }
 
-    private void Update()
+    public void Update()
     {
         attackText.text = attackPoint.ToString();
         healText.text = healPoint.ToString();
     }
 
-    void FixedUpdate()
+    public void FixedUpdate()
 	{
-        attackText.text = attackPoint.ToString();
-        healText.text = healPoint.ToString();
-
         if (Battle.instance.gameState == Battle.GameState.Default)
         {
             // 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.
@@ -91,7 +85,7 @@ public class CardBase : MonoBehaviour {
                 float distance = Vector3.Distance(transform.position, Battle.instance.monsterPos.position);
                 if (distance < 2)
                 {
-                    Debug.Log("CardBase : distance < 2");
+                    Debug.Log("One card attack end");
                     //Battle.instance.gameState = Battle.GameState.CardAttackEnd;
                     AttackMonster(Battle.instance.monster, null);
                     Battle.instance.gameState = Battle.GameState.CardAttacked;
@@ -107,48 +101,45 @@ public class CardBase : MonoBehaviour {
 
 	void OnMouseDown()
 	{
-		if (status == Status.inHand && status == Status.inField)
-		{
-			Selected = true;
-		}
+        if (Battle.instance.gameState == Battle.GameState.Default)
+        {
+            if (status == Status.inHand && status == Status.inField)
+            {
+                Selected = true;
+            }
+        }
 	}
+
 	void OnMouseUp()
 	{
-        Debug.Log("onMouseUp()");
-		Selected = false;
-        // 다른 카드와 겹쳐있으면 그 카드와 원래의 위치를 변경
-        Battle.instance.CheckPlace(gameObject);
-
+        if (Battle.instance.gameState == Battle.GameState.Default)
+        {
+            Selected = false;
+            // 다른 카드와 겹쳐있으면 그 카드와 원래의 위치를 변경
+            Battle.instance.CheckPlace(gameObject);
+        }
     }
-	void OnMouseOver()
-	{
-		//Debug.Log("On Mouse Over Event");
-	}
-	void OnMouseEnter()
-	{
-		//Debug.Log("On Mouse Enter Event");
-		//newPos += new Vector3(0,0.5f,0);
-	}
-	void OnMouseExit()
-	{
-		//Debug.Log("On Mouse Exit Event");
-		//newPos -= new Vector3(0,0.5f, 0);
-	}
+
 	void OnMouseDrag()
 	{
-        Debug.Log("OnMouseDrag()");
-        if (status == Status.inField || status == Status.inHand)
+        if (Battle.instance.gameState == Battle.GameState.Default)
         {
-            Vector3 tempVector3 = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distance_to_screen));
-            tempVector3.z = transform.position.z;
-            transform.position = tempVector3;
+            if (status == Status.inField || status == Status.inHand)
+            {
+                Vector3 tempVector3 = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen));
+                tempVector3.z = transform.position.z;
+                transform.position = tempVector3;
+            }
         }
     }
 
     public void AttackMonster(GameObject target, CustomAction action) // 몬스터를 공격!!
     {
-        Debug.Log("Attack");
+        Debug.Log("Card attack monster!");
         target.GetComponent<MonsterBase>().healthPoint -= attackPoint;
+        Battle.instance.healthPoint += healPoint;
+        if (Battle.instance.healthPoint > Battle.instance.maxHealthPoint)
+            Battle.instance.healthPoint = Battle.instance.maxHealthPoint;
 
         //action();
         Battle.instance.AddHistory(this, target.GetComponent<MonsterBase>());
@@ -173,52 +164,25 @@ public class CardBase : MonoBehaviour {
 			//card = null;
 		}
 	}
-
-	/*public void AddToHero(CardBehaviourScript magic, HeroBehaviourScript target, CustomAction action) // 카드에서 어떤 옵션을 다른 카드나 몬스터에 적용하는 함수 example
-    {
-		if (magic.canPlay)
-		{
-			target._Attack += magic.AddedAttack;
-			if (target.health + magic.AddedHealth <= 30)
-				target.health += magic.AddedHealth;
-			else
-				target.health = 30;
-			action();
-			Battle.instance.AddHistory(magic, target);
-		}
-	}
-
-	public void AddToEnemies(CardBehaviourScript magic, List<CardBehaviourScript> targets, bool addhistory, CustomAction action) // 카드에서 어떤 옵션을 다른 카드나 몬스터에 적용하는 함수 example
-    {
-		if (magic.canPlay)
-		{
-			foreach (var target in targets)
-			{
-				AddToMonster(magic, target, addhistory, delegate { });
-			}
-			action();
-		}
-	}*/
-
+    
 	public object Clone()
 	{
-		CardBase temp = new CardBase();
+        CardBase temp = new CardBase
+        {
+            seal = this.seal,
+            job = this.job,
+            status = this.status,
+            index = this.index,
+            cardName = this.cardName,
+            description = this.description,
+            attackPoint = this.attackPoint,
+            healPoint = this.healPoint,
+            healthPoint = this.healthPoint,
+            newPos = this.newPos,
+            distanceToScreen = this.distanceToScreen,
+            Selected = this.Selected
+        };
 
-        temp.seal = this.seal;
-        temp.job = this.job;
-        temp.status = this.status;
-        temp.index = this.index;
-		temp.cardName = this.cardName;
-		temp.description = this.description;
-		temp.attackPoint = this.attackPoint;
-		temp.healPoint = this.healPoint;
-        temp.healthPoint = this.healthPoint;
-        temp.GenerateRandomeData = this.GenerateRandomeData;
-		temp.canPlay = this.canPlay;
-		temp.newPos = this.newPos;
-		temp.distance_to_screen = this.distance_to_screen;
-		temp.Selected = this.Selected;
-
-		return temp;
+        return temp;
 	}
 }
