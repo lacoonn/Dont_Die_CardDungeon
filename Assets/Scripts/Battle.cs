@@ -7,6 +7,10 @@ public class Battle : MonoBehaviour {
     // 배틀 인스턴스
 	public static Battle instance;
 
+	// 사용할 오브젝트들
+    public GameObject sceneManager;
+	public GameObject leaderEffect;
+
     // 조합 배율
     public int DOUBLE = 2; // Seal이 같은 카드가 두 장
     public int TRIPLE = 5; // Seal이 같은 카드가 세 장
@@ -16,7 +20,7 @@ public class Battle : MonoBehaviour {
     public int COLLABORATION = 3; // 직업이 종류별로 세 장
 
     // 게임 상태
-    public enum GameState { Default, Shuffling, CardAttacking, CardAttacked, MonsterAttacking };
+    public enum GameState { Default, Shuffling, CardAttacking, CardAttackFinished, MonsterAttacking };
     public GameState gameState;
 
     // 포지션 관련 변수
@@ -78,14 +82,11 @@ public class Battle : MonoBehaviour {
         foreach (GameObject gameObject in deckCards)
         {
             CardBase cardBase = gameObject.GetComponent<CardBase>();
-            // 나중에 지우기 - 카드에 공, 힐, 체 할당
-            cardBase.baseAttackPoint = Random.Range(1, 9);
+            // 공, 체, 힐을 기본으로 변경
             cardBase.attackPoint = cardBase.baseAttackPoint;
-            cardBase.baseHealPoint = Random.Range(1, 9);
             cardBase.healPoint = cardBase.baseHealPoint;
-            cardBase.baseHealthPoint = Random.Range(10, 90);
             cardBase.healthPoint = cardBase.baseHealthPoint;
-            // 나중에 지우기 - 여기까지
+
             cardBase.status = CardBase.Status.inDeck;
             cardBase.newPos = deckPos.position;
             cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
@@ -349,13 +350,20 @@ public class Battle : MonoBehaviour {
             fieldCards[i].transform.rotation = new Quaternion(0, 180, 0, 0);
         }
         // 전투!!!
+		Instantiate (leaderEffect, fieldPos [1].transform.position, Quaternion.identity); // 리더효과
+		yield return new WaitForSeconds (0.5f);
+		fieldCards [1].GetComponent<CardBase> ().ApplyLeaderEffect ();
         for (int i = 0; i < fieldCards.Length; i++)
         {
             gameState = GameState.CardAttacking;
             attackingCard = fieldCards[i];
-            yield return new WaitForSeconds(0.5f);
+
+			//while (gameState == GameState.CardAttacking) {
+			while (gameState != GameState.CardAttackFinished) {
+				yield return new WaitForSeconds (0.1f);
+			}
             //fieldCards[i].GetComponent<CardBase>().AttackMonster(monster, null);
-        }
+		}
         gameState = GameState.Default;
 
         // 몬스터 공격!
@@ -364,7 +372,7 @@ public class Battle : MonoBehaviour {
         // 턴 종료
         EndTurn();
         
-        // 무덤으로!!!
+        // 필드의 카드를 무덤으로!!!
         for (int i = 0; i < fieldCards.Length; i++)
         {
             CardToTomb(fieldCards[i]);
@@ -540,7 +548,23 @@ public class Battle : MonoBehaviour {
             cardBase.healthPoint = cardBase.baseHealthPoint;
         }
     }
-    
+
+    public void Attacked(int damage)
+    {
+        healthPoint -= damage;
+        if (healthPoint < 0)
+        {
+            healthPoint = 0;
+            EndBattle();
+        }
+    }
+
+    public void Healed(int healPoint)
+    {
+        healthPoint += healPoint;
+        if (healthPoint > maxHealthPoint)
+            healthPoint = maxHealthPoint;
+    }
 
     void UpdateGame()
 	{
@@ -558,4 +582,10 @@ public class Battle : MonoBehaviour {
 	{
 		UpdateGame();
 	}
+
+    public void EndBattle()
+    {
+        Time.timeScale = 0;
+        sceneManager.GetComponent<ChangeScene>().ChangeSceneToReward();
+    }
 }

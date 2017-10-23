@@ -88,7 +88,7 @@ public class CardBase : MonoBehaviour {
                     Debug.Log("One card attack end");
                     //Battle.instance.gameState = Battle.GameState.CardAttackEnd;
                     AttackMonster(Battle.instance.monster, null);
-                    Battle.instance.gameState = Battle.GameState.CardAttacked;
+                    Battle.instance.gameState = Battle.GameState.CardAttackFinished;
                 }
                 else
                 {
@@ -136,14 +136,20 @@ public class CardBase : MonoBehaviour {
     public void AttackMonster(GameObject target, CustomAction action) // 몬스터를 공격!!
     {
         Debug.Log("Card attack monster!");
-        target.GetComponent<MonsterBase>().healthPoint -= attackPoint;
-        Battle.instance.healthPoint += healPoint;
-        if (Battle.instance.healthPoint > Battle.instance.maxHealthPoint)
-            Battle.instance.healthPoint = Battle.instance.maxHealthPoint;
+        // Attack monster
+        target.GetComponent<MonsterBase>().Attacked(attackPoint);
+
+        // Heal player
+        Battle.instance.Healed(healPoint);
 
         //action();
         Battle.instance.AddHistory(this, target.GetComponent<MonsterBase>());
     }
+
+	public void ApplyLeaderEffect()
+	{
+		
+	}
 
     public void Destroy(CardBase card)
 	{

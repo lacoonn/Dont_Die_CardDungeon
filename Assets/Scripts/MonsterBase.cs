@@ -5,6 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public class MonsterBase : MonoBehaviour
 {
+	// 필요한 리소스
+	public GameObject monsterAttackEffect;
+
     public string monsterName;
     public string discription;
 
@@ -37,6 +40,27 @@ public class MonsterBase : MonoBehaviour
     public void AttackPlayer()
     {
         Debug.Log("Monster attack player!");
-        Battle.instance.healthPoint -= attackPoint;
+		StartCoroutine (ShowAttackEffect ());
+        //Battle.instance.Attacked(attackPoint);
+    }
+
+	IEnumerator ShowAttackEffect()
+	{
+		Vector3 tempVector = this.transform.position;
+		tempVector.z -= 10;
+		Instantiate (monsterAttackEffect, tempVector, Quaternion.identity);
+		yield return new WaitForSeconds (10f);
+		Battle.instance.Attacked(attackPoint);
+		// 코루틴 뒤에 더 이상 작동할 코드가 없다면 쉬지않음
+	}
+
+    public void Attacked(int damage)
+    {
+        healthPoint -= damage;
+        if (healthPoint < 0)
+        {
+            healthPoint = 0;
+            Battle.instance.EndBattle();
+        }
     }
 }
