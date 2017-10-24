@@ -14,6 +14,10 @@ public class CardBase : MonoBehaviour {
     
     // 상태
     public enum Status { inField, inHand, inDeck, inTomb };
+
+    // 카드 활성화
+    public bool isActive = false;
+
     public Status status = Status.inDeck;
 
     // 카드가 속한 상태 배열에서 몇 번째에 있는지 저장하는 변수
@@ -34,8 +38,12 @@ public class CardBase : MonoBehaviour {
     public int healthPoint;
 
     // 텍스트 매쉬
+	public TextMesh nameText;
+	public TextMesh descriptionText;
 	public TextMesh attackText;
 	public TextMesh healText;
+	public TextMesh jobText;
+	public TextMesh sealText;
 
     // 카드의 위치가 수렴하는 장소(카드가 항상 이 장소로 이동하기 위해 움직임)
 	public Vector3 newPos;
@@ -47,10 +55,23 @@ public class CardBase : MonoBehaviour {
 
     public delegate void CustomAction();
 
-    // Use this for initialization
-    public void Start ()
+	public void Awake()
+	{
+		
+		
+	}
+
+	// Use this for initialization
+	public void Start ()
     {
-        distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
+		distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
+		// set seal textmesh
+		if (seal == Seal.J)
+			sealText.text = "J";
+		else if (seal == Seal.Q)
+			sealText.text = "Q";
+		else
+			sealText.text = "K";
     }
 
     public void Update()
@@ -59,78 +80,89 @@ public class CardBase : MonoBehaviour {
         healText.text = healPoint.ToString();
     }
 
-    public void FixedUpdate()
+	public void FixedUpdate()
 	{
-        if (Battle.instance.gameState == Battle.GameState.Default)
-        {
-            // 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.
-            if (!Selected)
-            {
-                transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 3);
-                if (status == Status.inTomb || status == Status.inDeck)
-                {
-                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 0.0f, 0.0f), Time.deltaTime * 3);
-                }
-                else
-                {
-                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 180.0f, 0.0f), Time.deltaTime * 3);
-                }
+		if (isActive)
+		{
+			if (Battle.instance.gameState == Battle.GameState.Default)
+			{
+				// 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.
+				if (!Selected)
+				{
+					transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 3);
+					if (status == Status.inTomb || status == Status.inDeck)
+					{
+						transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 0.0f, 0.0f), Time.deltaTime * 3);
+					}
+					else
+					{
+						transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 180.0f, 0.0f), Time.deltaTime * 3);
+					}
 
-            }
-        }
-        else if (Battle.instance.gameState == Battle.GameState.CardAttacking)
-        {
-            if (gameObject == Battle.instance.attackingCard)
-            {
-                float distance = Vector3.Distance(transform.position, Battle.instance.monsterPos.position);
-                if (distance < 2)
-                {
-                    Debug.Log("One card attack end");
-                    //Battle.instance.gameState = Battle.GameState.CardAttackEnd;
-                    AttackMonster(Battle.instance.monster, null);
-                    Battle.instance.gameState = Battle.GameState.CardAttackFinished;
-                }
-                else
-                {
-                    transform.position = Vector3.Lerp(transform.position, Battle.instance.monsterPos.position, Time.deltaTime * 3);
-                }
-            }
-        }
-
+				}
+			}
+			else if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+			{
+				if (gameObject == Battle.instance.attackingCard)
+				{
+					float distance = Vector3.Distance(transform.position, Battle.instance.monsterPos.position);
+					if (distance < 2)
+					{
+						Debug.Log("One card attack end");
+						//Battle.instance.gameState = Battle.GameState.CardAttackEnd;
+						AttackMonster(Battle.instance.monster, null);
+						Battle.instance.gameState = Battle.GameState.CardAttackFinished;
+					}
+					else
+					{
+						transform.position = Vector3.Lerp(transform.position, Battle.instance.monsterPos.position, Time.deltaTime * 5);
+					}
+				}
+			}
+		}
     }
 
 	void OnMouseDown()
 	{
-        if (Battle.instance.gameState == Battle.GameState.Default)
-        {
-            if (status == Status.inHand && status == Status.inField)
-            {
-                Selected = true;
-            }
-        }
+		if (isActive)
+		{
+			if (Battle.instance.gameState == Battle.GameState.Default)
+			{
+				if (status == Status.inHand && status == Status.inField)
+				{
+					Selected = true;
+				}
+			}
+		}
 	}
 
 	void OnMouseUp()
 	{
-        if (Battle.instance.gameState == Battle.GameState.Default)
-        {
-            Selected = false;
-            // 다른 카드와 겹쳐있으면 그 카드와 원래의 위치를 변경
-            Battle.instance.CheckPlace(gameObject);
-        }
+		if (isActive)
+		{
+			if (Battle.instance.gameState == Battle.GameState.Default)
+			{
+				Selected = false;
+				// 다른 카드와 겹쳐있으면 그 카드와 원래의 위치를 변경
+				Battle.instance.CheckPlace(gameObject);
+			}
+		}
     }
 
 	void OnMouseDrag()
 	{
-        if (Battle.instance.gameState == Battle.GameState.Default)
-        {
-            if (status == Status.inField || status == Status.inHand)
-            {
-                Vector3 tempVector3 = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen));
-                tempVector3.z = transform.position.z;
-                transform.position = tempVector3;
-            }
-        }
+		if (isActive)
+		{
+			if (Battle.instance.gameState == Battle.GameState.Default)
+			{
+				if (status == Status.inField || status == Status.inHand)
+				{
+					Vector3 tempVector3 = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen));
+					tempVector3.z = transform.position.z;
+					transform.position = tempVector3;
+				}
+			}
+		}
     }
 
     public void AttackMonster(GameObject target, CustomAction action) // 몬스터를 공격!!

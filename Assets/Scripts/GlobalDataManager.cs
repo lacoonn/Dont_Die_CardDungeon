@@ -2,19 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GlobalDataManager : MonoBehaviour {
-
+public class GlobalDataManager : MonoBehaviour
+{
 	public static GlobalDataManager instance = null;
+
+	public bool isInit = false;
+
+	public enum Scene { Menu, Battle, Reward };
+
+	public Scene scene = Scene.Menu;
 
 	public int testNum = 111;
 
-	public GameObject[] AllCardList;
+	public List<string> AllCardList;
 
-	public GameObject[] CurrentCardList;
+	public List<string> currentCardList;
+	
 
 	void Awake()
 	{
-		if (instance) {
+		if (instance)
+		{
 			DestroyImmediate (gameObject);
 			return;
 		}

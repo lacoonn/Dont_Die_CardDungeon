@@ -65,48 +65,64 @@ public class Battle : MonoBehaviour {
     void Awake()
 	{
 		instance = this;
+
+		// 게임스테이트 초기화
+		gameState = GameState.Default;
+
+		// 몬스터 초기화
+		monster.transform.position = monsterPos.position;
+		monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;
+
+		// 모든 카드를 덱으로 이동
+		int zPos = 0;
+		for (int i = 0; i < 9; i++)
+		{
+			//Debug.Log(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardNameList[i]) as GameObject);
+			GameObject gameObject = Instantiate(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardList[i]) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+			CardBase cardBase = gameObject.GetComponent<CardBase>();
+			cardBase.isActive = true;
+			// 각인 설정
+			if (i % 3 == 0)
+				cardBase.seal = CardBase.Seal.J;
+			else if (i % 3 == 1)
+				cardBase.seal = CardBase.Seal.Q;
+			else
+				cardBase.seal = CardBase.Seal.K;
+
+			// 공, 체, 힐을 기본으로 변경
+			cardBase.attackPoint = cardBase.baseAttackPoint;
+			cardBase.healPoint = cardBase.baseHealPoint;
+			cardBase.healthPoint = cardBase.baseHealthPoint;
+
+			cardBase.status = CardBase.Status.inTomb;
+			cardBase.newPos = tombPos.position;
+			cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
+
+			// 플레이어 체력에 카드 체력 추가
+			maxHealthPoint += cardBase.healthPoint;
+
+			// 덱 카드에 오브젝트 할당
+			tombCards.Add(gameObject);
+		}
+		healthPoint = maxHealthPoint;
+
+		// 텍스트매쉬 초기화
+		healthText.text = healthPoint.ToString();
+		combinationText.text = combination.ToString();
 	}
 
 	// Use this for initialization
 	void Start ()
     {
-        // 게임스테이트 초기화
-        gameState = GameState.Default;
-
-        // 몬스터 초기화
-        monster.transform.position = monsterPos.position;
-        monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;
-
-        // 모든 카드를 덱으로 이동
-        int zPos = 0;
-        foreach (GameObject gameObject in deckCards)
-        {
-            CardBase cardBase = gameObject.GetComponent<CardBase>();
-            // 공, 체, 힐을 기본으로 변경
-            cardBase.attackPoint = cardBase.baseAttackPoint;
-            cardBase.healPoint = cardBase.baseHealPoint;
-            cardBase.healthPoint = cardBase.baseHealthPoint;
-
-            cardBase.status = CardBase.Status.inDeck;
-            cardBase.newPos = deckPos.position;
-            cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
-
-            // 플레이어 체력에 카드 체력 추가
-            maxHealthPoint += cardBase.healthPoint;
-        }
-        healthPoint = maxHealthPoint; // 시작은 최대체력으로!
-
-        // 텍스트매쉬 초기화
-        healthText.text = healthPoint.ToString();
-        combinationText.text = combination.ToString();
-
-        // 카드를 필드로 드로우
+        // Shuffle cards and draw from deck
+		StartCoroutine(ShuffleDeck());
         for (int i = 0; i < 3; i++)
         {
-            DrawCardFromDeck(CardBase.Status.inField);
+			Debug.Log ("LoL" + i);
+            StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
         }
         // 카드를 핸드로 드로우
-        DrawCardFromDeck(CardBase.Status.inHand);
+		StartCoroutine(DrawCardFromDeck(CardBase.Status.inHand));
     }
 
     private void Update()
@@ -142,133 +158,94 @@ public class Battle : MonoBehaviour {
 
 		for (int i = 0; i < 3; i++)
 		{
-			DrawCardFromDeck(CardBase.Status.inField);
+			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
 		}
 	}
 
-    // 카드를 덱에서 특정 Status로 드로우한다.
-	public void DrawCardFromDeck(CardBase.Status goalStatus)
+	// 카드를 덱에서 특정 Status로 드로우한다.
+	public IEnumerator DrawCardFromDeck(CardBase.Status goalStatus)
 	{
-        GameObject tempCard;
+		GameObject tempCard;
 
-        if (deckCards.Count == 0) // 덱에 카드가 없으면 셔플
-        {
-            StartCoroutine(ShuffleDeckAndDraw(goalStatus));
+		if (deckCards.Count == 0) // 덱에 카드가 없으면 셔플
+		{
+			StartCoroutine(ShuffleDeck());
 
-            return; // 묘지의 카드를 셔플하고 카드들이 덱 위치로 갈 동안 기다릴 방법이 없다...
-        }
+			yield return new WaitForSeconds(1f);
+		}
 
-        if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
-        {
-            // 모든 fieldCard를 검사해서 NULL이 있으면 그것의 자리를 메운다
-            for (int i = 0; i < fieldCards.Length; i++)
-            {
-                if (fieldCards[i] == null)
-                {
-                    tempCard = deckCards[0];
-                    deckCards.Remove(tempCard);
+		if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
+		{
+			// 모든 fieldCard를 검사해서 NULL이 있으면 그것의 자리를 메운다
+			for (int i = 0; i < fieldCards.Length; i++)
+			{
+				if (fieldCards[i] == null)
+				{
+					tempCard = deckCards[0];
+					deckCards.Remove(tempCard);
 
-                    tempCard.GetComponent<CardBase>().newPos = fieldPos[i].position;
-                    tempCard.GetComponent<CardBase>().status = CardBase.Status.inField;
-                    tempCard.GetComponent<CardBase>().index = i;
+					tempCard.GetComponent<CardBase>().newPos = fieldPos[i].position;
+					tempCard.GetComponent<CardBase>().status = CardBase.Status.inField;
+					tempCard.GetComponent<CardBase>().index = i;
 
-                    fieldCards[i] = tempCard;
+					fieldCards[i] = tempCard;
 
-                    break;
-                }
-            }
-        }
-        else if (goalStatus == CardBase.Status.inHand)
-        {
-            for (int i = 0; i < handCards.Length; i++)
-            {
-                if (handCards[i] == null)
-                {
-                    tempCard = deckCards[0];
-                    deckCards.Remove(tempCard);
+					break;
+				}
+			}
+		}
+		else if (goalStatus == CardBase.Status.inHand)
+		{
+			for (int i = 0; i < handCards.Length; i++)
+			{
+				if (handCards[i] == null)
+				{
+					tempCard = deckCards[0];
+					deckCards.Remove(tempCard);
 
-                    tempCard.GetComponent<CardBase>().newPos = handPos[i].position;
-                    tempCard.GetComponent<CardBase>().status = CardBase.Status.inHand;
-                    tempCard.GetComponent<CardBase>().index = i;
+					tempCard.GetComponent<CardBase>().newPos = handPos[i].position;
+					tempCard.GetComponent<CardBase>().status = CardBase.Status.inHand;
+					tempCard.GetComponent<CardBase>().index = i;
 
-                    handCards[i] = tempCard;
+					handCards[i] = tempCard;
 
-                    break;
-                }
-            }
-        }
+					break;
+				}
+			}
+		}
 
-        // 카드를 드로우 한 뒤 조합 상태를 확인
-        UpdateCombination();
-    }
+		// 카드를 드로우 한 뒤 조합 상태를 확인
+		UpdateCombination();
+	}
 
-    // 무덤의 카드를 덱으로 섞는다.
-    IEnumerator ShuffleDeckAndDraw(CardBase.Status goalStatus)
-    {
-        GameObject tempCard;
+	// 무덤의 카드를 덱으로 섞는다.
+	IEnumerator ShuffleDeck()
+	{
+		GameObject tempCard;
 
-        while (tombCards.Count > 0)
-        {
-            // 무덤에서 랜덤카드 획득
-            int random = Random.Range(0, tombCards.Count - 1);
-            tempCard = tombCards[random];
-            // 무덤에서 카드를 제거하고 덱에 추가
-            tombCards.RemoveAt(random);
-            deckCards.Add(tempCard);
-            // 카드의 뉴포즈, 상태, 인덱스 업데이트
-            tempCard.GetComponent<CardBase>().newPos = deckPos.position;
-            tempCard.GetComponent<CardBase>().status = CardBase.Status.inDeck;
-            tempCard.GetComponent<CardBase>().index = deckCards.IndexOf(tempCard);
-        }
-        yield return new WaitForSeconds(1f);
+		GameState tempState = gameState;
+		gameState = GameState.Shuffling;
 
-        
-        //////////////////////////// 이어서 카드 한 장을 드로우한다
-        if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
-        {
-            // 모든 fieldCard를 검사해서 NULL이 있으면 그것의 자리를 메운다
-            for (int i = 0; i < fieldCards.Length; i++)
-            {
-                if (fieldCards[i] == null)
-                {
-                    tempCard = deckCards[0];
-                    deckCards.Remove(tempCard);
+		while (tombCards.Count > 0)
+		{
+			// 무덤에서 랜덤카드 획득
+			int random = Random.Range(0, tombCards.Count - 1);
+			tempCard = tombCards[random];
+			// 무덤에서 카드를 제거하고 덱에 추가
+			tombCards.RemoveAt(random);
+			deckCards.Add(tempCard);
+			// 카드의 뉴포즈, 상태, 인덱스 업데이트
+			tempCard.GetComponent<CardBase>().newPos = deckPos.position;
+			tempCard.GetComponent<CardBase>().status = CardBase.Status.inDeck;
+			tempCard.GetComponent<CardBase>().index = deckCards.IndexOf(tempCard);
+			yield return new WaitForSeconds(0.1f);
+		}
 
-                    tempCard.GetComponent<CardBase>().newPos = fieldPos[i].position;
-                    tempCard.GetComponent<CardBase>().status = CardBase.Status.inField;
-                    tempCard.GetComponent<CardBase>().index = i;
+		gameState = tempState;
+	}
 
-                    fieldCards[i] = tempCard;
-
-                    break;
-                }
-            }
-        }
-        else if (goalStatus == CardBase.Status.inHand)
-        {
-            for (int i = 0; i < handCards.Length; i++)
-            {
-                if (handCards[i] == null)
-                {
-                    tempCard = deckCards[0];
-                    deckCards.Remove(tempCard);
-
-                    tempCard.GetComponent<CardBase>().newPos = handPos[i].position;
-                    tempCard.GetComponent<CardBase>().status = CardBase.Status.inHand;
-                    tempCard.GetComponent<CardBase>().index = i;
-
-                    handCards[i] = tempCard;
-
-                    break;
-                }
-            }
-        }
-
-        // 카드를 드로우 한 뒤 조합 상태를 확인
-        UpdateCombination();
-    }
-
-    public void CheckPlace(GameObject cardObject) // 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
+	// 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
+    public void CheckPlace(GameObject cardObject)
     {
         Vector3 currentCardPosition = cardObject.transform.position;
         currentCardPosition.z = 0; // 거리를 측정하기 위해 z값을 통일해준다
@@ -335,7 +312,8 @@ public class Battle : MonoBehaviour {
             CardBase.Status tempStatus = cardObject.GetComponent<CardBase>().status;
             CardToTomb(cardObject); // 카드 버림
 
-            DrawCardFromDeck(tempStatus); // 카드 드로우
+			StartCoroutine(DrawCardFromDeck(tempStatus));
+            //DrawCardFromDeck(tempStatus); // 카드 드로우
 
             return;
         }
@@ -381,7 +359,8 @@ public class Battle : MonoBehaviour {
         // 드로우!!!
         for (int i = 0; i < fieldCards.Length; i++)
         {
-            DrawCardFromDeck(CardBase.Status.inField);
+			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
+            //DrawCardFromDeck(CardBase.Status.inField);
         }
     }
 

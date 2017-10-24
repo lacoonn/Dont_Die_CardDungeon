@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BeginnerWizard : CardBase
-{
+public class HealingPriest : CardBase {
 
 }

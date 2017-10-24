@@ -7,16 +7,19 @@ public class ChangeScene : MonoBehaviour
 {
     public void ChangeSceneToMenu()
     {
-        SceneManager.LoadScene("MenuScene");
+		GlobalDataManager.instance.scene = GlobalDataManager.Scene.Menu;
+		SceneManager.LoadScene("MenuScene");
     }
 
     public void ChangeSceneToBattle()
     {
-        SceneManager.LoadScene("BattleScene");
+		GlobalDataManager.instance.scene = GlobalDataManager.Scene.Battle;
+		SceneManager.LoadScene("BattleScene");
     }
 
     public void ChangeSceneToReward()
     {
-        SceneManager.LoadScene("RewardScene");
+		GlobalDataManager.instance.scene = GlobalDataManager.Scene.Reward;
+		SceneManager.LoadScene("RewardScene");
     }
 }

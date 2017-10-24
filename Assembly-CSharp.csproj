@@ -52,15 +52,23 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Battle.cs" />
-     <Compile Include="Assets\Scripts\BeginnerKnight.cs" />
-     <Compile Include="Assets\Scripts\BeginnerPriest.cs" />
-     <Compile Include="Assets\Scripts\BeginnerWizard.cs" />
      <Compile Include="Assets\Scripts\CardBase.cs" />
+     <Compile Include="Assets\Scripts\CardList\ArmorBreaker.cs" />
+     <Compile Include="Assets\Scripts\CardList\Barbarian.cs" />
+     <Compile Include="Assets\Scripts\CardList\BeginnerKnight.cs" />
+     <Compile Include="Assets\Scripts\CardList\BeginnerPriest.cs" />
+     <Compile Include="Assets\Scripts\CardList\BeginnerWizard.cs" />
+     <Compile Include="Assets\Scripts\CardList\EncouragementPriest.cs" />
+     <Compile Include="Assets\Scripts\CardList\FreezingWizard.cs" />
+     <Compile Include="Assets\Scripts\CardList\HealingPriest.cs" />
+     <Compile Include="Assets\Scripts\CardList\PoisonWizard.cs" />
      <Compile Include="Assets\Scripts\ChangeScene.cs" />
      <Compile Include="Assets\Scripts\GlobalDataManager.cs" />
      <Compile Include="Assets\Scripts\LeaderEffect.cs" />
-     <Compile Include="Assets\Scripts\Monster.cs" />
+     <Compile Include="Assets\Scripts\MenuManager.cs" />
      <Compile Include="Assets\Scripts\MonsterBase.cs" />
+     <Compile Include="Assets\Scripts\MonsterList\Dragon.cs" />
+     <Compile Include="Assets\Scripts\RewardManager.cs" />
      <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonBasic.shader" />
      <None Include="Assets\Standard Assets\Effects\TessellationShaders\Shaders\BumpedSpecularSmooth.shader" />

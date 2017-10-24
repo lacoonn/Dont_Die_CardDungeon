@@ -49,7 +49,7 @@ public class MonsterBase : MonoBehaviour
 		Vector3 tempVector = this.transform.position;
 		tempVector.z -= 10;
 		Instantiate (monsterAttackEffect, tempVector, Quaternion.identity);
-		yield return new WaitForSeconds (10f);
+		yield return new WaitForSeconds (1f);
 		Battle.instance.Attacked(attackPoint);
 		// 코루틴 뒤에 더 이상 작동할 코드가 없다면 쉬지않음
 	}
