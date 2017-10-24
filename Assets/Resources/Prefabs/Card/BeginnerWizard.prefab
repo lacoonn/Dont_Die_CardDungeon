@@ -879,15 +879,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seal: 0
-  job: 0
+  job: 1
   isActive: 0
   status: 2
   index: 0
   cardName: 
   description: 
-  baseAttackPoint: 0
-  baseHealPoint: 0
-  baseHealthPoint: 0
+  baseAttackPoint: 10
+  baseHealPoint: 5
+  baseHealthPoint: 50
   attackPoint: 0
   healPoint: 0
   healthPoint: 0

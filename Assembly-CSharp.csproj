@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{F1BBE362-FB7A-C46E-2355-CAF1D0FDD316}</ProjectGuid>
+    <ProjectGuid>{742521B5-150A-D1DA-0B25-7C83F28BCB94}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -64,11 +64,11 @@
      <Compile Include="Assets\Scripts\CardList\PoisonWizard.cs" />
      <Compile Include="Assets\Scripts\ChangeScene.cs" />
      <Compile Include="Assets\Scripts\GlobalDataManager.cs" />
-     <Compile Include="Assets\Scripts\LeaderEffect.cs" />
      <Compile Include="Assets\Scripts\MenuManager.cs" />
      <Compile Include="Assets\Scripts\MonsterBase.cs" />
      <Compile Include="Assets\Scripts\MonsterList\Dragon.cs" />
      <Compile Include="Assets\Scripts\RewardManager.cs" />
+     <Compile Include="Assets\Scripts\SimpleEffect.cs" />
      <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\Standard Assets\Effects\ToonShading\Shaders\ToonBasic.shader" />
      <None Include="Assets\Standard Assets\Effects\TessellationShaders\Shaders\BumpedSpecularSmooth.shader" />
@@ -109,7 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{956DA22D-1E0C-0D2C-7E62-F16C6CA9F941}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+      <Project>{EB7D8D0C-FFCD-B5E9-A8D3-03F0AC7B66A0}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

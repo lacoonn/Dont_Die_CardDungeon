@@ -47,9 +47,11 @@ public class MonsterBase : MonoBehaviour
 	IEnumerator ShowAttackEffect()
 	{
 		Vector3 tempVector = this.transform.position;
-		tempVector.z -= 10;
-		Instantiate (monsterAttackEffect, tempVector, Quaternion.identity);
-		yield return new WaitForSeconds (1f);
+		tempVector.z -= 1;
+        GameObject gameObject = Instantiate(Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject, tempVector, Quaternion.identity); // should instantiate after load resources
+		//Instantiate (monsterAttackEffect, tempVector, Quaternion.identity);
+        //yield return new WaitForSeconds (monsterAttackEffect.GetComponent<ParticleSystem>().duration);
+        yield return new WaitForSeconds (0.5f);
 		Battle.instance.Attacked(attackPoint);
 		// 코루틴 뒤에 더 이상 작동할 코드가 없다면 쉬지않음
 	}
@@ -57,7 +59,7 @@ public class MonsterBase : MonoBehaviour
     public void Attacked(int damage)
     {
         healthPoint -= damage;
-        if (healthPoint < 0)
+        if (healthPoint <= 0)
         {
             healthPoint = 0;
             Battle.instance.EndBattle();

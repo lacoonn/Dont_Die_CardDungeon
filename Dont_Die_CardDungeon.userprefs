@@ -1,0 +1,15 @@
+﻿<Properties StartupItem="Assembly-CSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\MonsterBase.cs">
+    <Files>
+      <File FileName="Assets\Scripts\Battle.cs" Line="339" Column="9" />
+      <File FileName="Assets\Scripts\CardBase.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\SimpleEffect.cs" Line="13" Column="18" />
+      <File FileName="Assets\Scripts\MonsterBase.cs" Line="51" Column="189" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

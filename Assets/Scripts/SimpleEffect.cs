@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LeaderEffect : MonoBehaviour {
-
+public class SimpleEffect : MonoBehaviour {
+    public float duration;
 	// Use this for initialization
 	void Start () {
-		Debug.Log ("Leader effect created");
-		Destroy (this, 1);
+        Destroy(gameObject, duration);
 	}
 	
 	// Update is called once per frame

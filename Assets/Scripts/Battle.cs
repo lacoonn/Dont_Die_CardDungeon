@@ -20,7 +20,7 @@ public class Battle : MonoBehaviour {
     public int COLLABORATION = 3; // 직업이 종류별로 세 장
 
     // 게임 상태
-    public enum GameState { Default, Shuffling, CardAttacking, CardAttackFinished, MonsterAttacking };
+    public enum GameState { Default, ShuffleStart, Shuffling, ShuffleEnd, CardAttackStart, CardAttacking, CardAttackFinish, MonsterAttacking };
     public GameState gameState;
 
     // 포지션 관련 변수
@@ -114,25 +114,22 @@ public class Battle : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        // Shuffle cards and draw from deck
-		StartCoroutine(ShuffleDeck());
-        for (int i = 0; i < 3; i++)
-        {
-			Debug.Log ("LoL" + i);
-            StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
-        }
-        // 카드를 핸드로 드로우
-		StartCoroutine(DrawCardFromDeck(CardBase.Status.inHand));
+		StartCoroutine(StartGame());
     }
 
-    private void Update()
+    void Update()
     {
-        // 텍스트매쉬 초기화
-        //healthText.text = healthPoint.ToString();
-        //combinationText.text = combination.ToString();
+		if (gameState == GameState.ShuffleStart) {
+			gameState = GameState.Shuffling;
+		} else if (gameState == GameState.Shuffling) {
+			
+		} else if (gameState == GameState.ShuffleEnd) {
+			
+		}
+			
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         // 텍스트매쉬 초기화
         healthText.text = healthPoint.ToString() + "/" + maxHealthPoint.ToString();
@@ -150,16 +147,26 @@ public class Battle : MonoBehaviour {
         targetMonster = null;
     }
 
-    public void StartGame()
+    public IEnumerator StartGame()
 	{
         Debug.Log("StartGame()");
 		gameStarted = true;
-		UpdateGame();
 
+		Debug.Log("ShuffleDeck Start");
+		// Shuffle cards and draw from deck
+		StartCoroutine(ShuffleDeck());
+		while (gameState != GameState.ShuffleEnd) {
+			yield return new WaitForSeconds (0.1f);
+		}
+		Debug.Log("ShuffleDeck End");
 		for (int i = 0; i < 3; i++)
 		{
+			Debug.Log ("LoL" + i);
 			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
+			yield return new WaitForSeconds (0.1f);
 		}
+		// 카드를 핸드로 드로우
+		StartCoroutine(DrawCardFromDeck(CardBase.Status.inHand));
 	}
 
 	// 카드를 덱에서 특정 Status로 드로우한다.
@@ -224,7 +231,7 @@ public class Battle : MonoBehaviour {
 		GameObject tempCard;
 
 		GameState tempState = gameState;
-		gameState = GameState.Shuffling;
+		gameState = GameState.ShuffleStart;
 
 		while (tombCards.Count > 0)
 		{
@@ -238,10 +245,12 @@ public class Battle : MonoBehaviour {
 			tempCard.GetComponent<CardBase>().newPos = deckPos.position;
 			tempCard.GetComponent<CardBase>().status = CardBase.Status.inDeck;
 			tempCard.GetComponent<CardBase>().index = deckCards.IndexOf(tempCard);
+			Debug.Log("tomb -> deck");
 			yield return new WaitForSeconds(0.1f);
 		}
 
-		gameState = tempState;
+		//gameState = tempState;
+		gameState = GameState.ShuffleEnd;
 	}
 
 	// 카드의 위치가 다른 카드와 겹치는지, 묘지와 겹치는지 확인한다.
@@ -257,10 +266,8 @@ public class Battle : MonoBehaviour {
         if (currentCardPosition.y > 1 && cardObject.GetComponent<CardBase>().status == CardBase.Status.inField)
         {
             Debug.Log("Attack!!!!!!!!!!!!!!!!!!!!!");
-            //AttackPhase();
             cardObject.transform.position = cardObject.GetComponent<CardBase>().newPos;
             StartCoroutine(AttackPhase());
-            //MonoBehaviour.StartCoroutine("MakeMissile");
             return;
         }
 
@@ -313,7 +320,6 @@ public class Battle : MonoBehaviour {
             CardToTomb(cardObject); // 카드 버림
 
 			StartCoroutine(DrawCardFromDeck(tempStatus));
-            //DrawCardFromDeck(tempStatus); // 카드 드로우
 
             return;
         }
@@ -328,7 +334,9 @@ public class Battle : MonoBehaviour {
             fieldCards[i].transform.rotation = new Quaternion(0, 180, 0, 0);
         }
         // 전투!!!
-		Instantiate (leaderEffect, fieldPos [1].transform.position, Quaternion.identity); // 리더효과
+        Vector3 tempVector = fieldPos [1].transform.position;
+        tempVector.z -= 10;
+        GameObject gameObject = Instantiate(Resources.Load("Prefabs/Effect/LeaderEffect") as GameObject, tempVector, Quaternion.identity); // should instantiate after load resources
 		yield return new WaitForSeconds (0.5f);
 		fieldCards [1].GetComponent<CardBase> ().ApplyLeaderEffect ();
         for (int i = 0; i < fieldCards.Length; i++)
@@ -336,8 +344,7 @@ public class Battle : MonoBehaviour {
             gameState = GameState.CardAttacking;
             attackingCard = fieldCards[i];
 
-			//while (gameState == GameState.CardAttacking) {
-			while (gameState != GameState.CardAttackFinished) {
+			while (gameState != GameState.CardAttackFinish) {
 				yield return new WaitForSeconds (0.1f);
 			}
             //fieldCards[i].GetComponent<CardBase>().AttackMonster(monster, null);
@@ -360,7 +367,7 @@ public class Battle : MonoBehaviour {
         for (int i = 0; i < fieldCards.Length; i++)
         {
 			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
-            //DrawCardFromDeck(CardBase.Status.inField);
+			yield return new WaitForSeconds (0.1f);
         }
     }
 
@@ -480,33 +487,75 @@ public class Battle : MonoBehaviour {
                 PRIEST++;
         }
         if (J == 2) // 파악한 갯수에 맞게 조합 배율 업데이트 => 각인
+        {
             combination *= DOUBLE;
+            Debug.Log("Double");
+        }
         if (Q == 2)
+        {
             combination *= DOUBLE;
+            Debug.Log("Double");
+        }
         if (K == 2)
+        {
             combination *= DOUBLE;
+            Debug.Log("Double");
+        }
         if (J == 3)
+        {
             combination *= TRIPLE;
+            Debug.Log("Triple");
+        }
         if (Q == 3)
+        {
             combination *= TRIPLE;
+            Debug.Log("Triple");
+        }
         if (K == 3)
+        {
             combination *= TRIPLE;
+            Debug.Log("Triple");
+        }
         if (J == 1 && Q == 1 && K == 1)
+        {
             combination *= STRAIGHT;
+            Debug.Log("Straight");
+        }
         if (KNIGHT == 2) // 파악한 갯수에 맞게 조합 배율 업데이트 => 직업
+        {
             combination *= DUO;
+            Debug.Log("Duo");
+        }
         if (WIZARD == 2)
+        {
             combination *= DUO;
+            Debug.Log("Duo");
+        }
         if (PRIEST == 2)
+        {
             combination *= DUO;
+            Debug.Log("Duo");
+        }
         if (KNIGHT == 3)
+        {
             combination *= TRIO;
+            Debug.Log("Trio");
+        }
         if (WIZARD == 3)
+        {
             combination *= TRIO;
+            Debug.Log("Trio");
+        }
         if (PRIEST == 3)
+        {
             combination *= TRIO;
+            Debug.Log("Trio");
+        }
         if (KNIGHT == 1 && WIZARD == 1 && PRIEST == 1)
+        {
             combination *= COLLABORATION;
+            Debug.Log("Collaboration");
+        }
 
         // 필드의 카드들에 조합 배율 적용
         for (int i = 0; i < fieldCards.Length; i++)
@@ -531,7 +580,7 @@ public class Battle : MonoBehaviour {
     public void Attacked(int damage)
     {
         healthPoint -= damage;
-        if (healthPoint < 0)
+        if (healthPoint <= 0)
         {
             healthPoint = 0;
             EndBattle();
@@ -564,7 +613,7 @@ public class Battle : MonoBehaviour {
 
     public void EndBattle()
     {
-        Time.timeScale = 0;
+        //Time.timeScale = 0;
         sceneManager.GetComponent<ChangeScene>().ChangeSceneToReward();
     }
 }

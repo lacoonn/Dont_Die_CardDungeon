@@ -84,7 +84,25 @@ public class CardBase : MonoBehaviour {
 	{
 		if (isActive)
 		{
-			if (Battle.instance.gameState == Battle.GameState.Default)
+			if (Battle.instance.gameState == Battle.GameState.CardAttackStart || Battle.instance.gameState == Battle.GameState.CardAttacking || Battle.instance.gameState == Battle.GameState.CardAttackFinish)
+			{
+				if (gameObject == Battle.instance.attackingCard)
+				{
+					float distance = Vector3.Distance(transform.position, Battle.instance.monsterPos.position);
+					if (distance < 2)
+					{
+						Debug.Log("One card attack end");
+						//Battle.instance.gameState = Battle.GameState.CardAttackEnd;
+						AttackMonster(Battle.instance.monster, null);
+						Battle.instance.gameState = Battle.GameState.CardAttackFinish;
+					}
+					else
+					{
+						transform.position = Vector3.Lerp(transform.position, Battle.instance.monsterPos.position, Time.deltaTime * 5);
+					}
+				}
+			}
+			else
 			{
 				// 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.
 				if (!Selected)
@@ -101,24 +119,6 @@ public class CardBase : MonoBehaviour {
 
 				}
 			}
-			else if (Battle.instance.gameState == Battle.GameState.CardAttacking)
-			{
-				if (gameObject == Battle.instance.attackingCard)
-				{
-					float distance = Vector3.Distance(transform.position, Battle.instance.monsterPos.position);
-					if (distance < 2)
-					{
-						Debug.Log("One card attack end");
-						//Battle.instance.gameState = Battle.GameState.CardAttackEnd;
-						AttackMonster(Battle.instance.monster, null);
-						Battle.instance.gameState = Battle.GameState.CardAttackFinished;
-					}
-					else
-					{
-						transform.position = Vector3.Lerp(transform.position, Battle.instance.monsterPos.position, Time.deltaTime * 5);
-					}
-				}
-			}
 		}
     }
 
@@ -126,7 +126,11 @@ public class CardBase : MonoBehaviour {
 	{
 		if (isActive)
 		{
-			if (Battle.instance.gameState == Battle.GameState.Default)
+			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+			{
+				
+			} 
+			else
 			{
 				if (status == Status.inHand && status == Status.inField)
 				{
@@ -140,7 +144,11 @@ public class CardBase : MonoBehaviour {
 	{
 		if (isActive)
 		{
-			if (Battle.instance.gameState == Battle.GameState.Default)
+			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+			{
+				
+			}
+			else
 			{
 				Selected = false;
 				// 다른 카드와 겹쳐있으면 그 카드와 원래의 위치를 변경
@@ -153,7 +161,11 @@ public class CardBase : MonoBehaviour {
 	{
 		if (isActive)
 		{
-			if (Battle.instance.gameState == Battle.GameState.Default)
+			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+			{
+				
+			}
+			else
 			{
 				if (status == Status.inField || status == Status.inHand)
 				{
