@@ -3,12 +3,90 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RewardManager : MonoBehaviour {
+	public static RewardManager instance;
 
 	public GameObject sceneManager;
 
+	public Transform waitPosition;
+
+	public Transform[] newCardPositions = new Transform[3];
+	public GameObject[] newCardBorders = new GameObject[3];
+	public GameObject[] newCards = new GameObject[3];
+
+	
+	public Transform[] currentCardPositions = new Transform[3]; // Cards that job is same with selectetd new card
+	public GameObject[] currentCardBorders = new GameObject[3];
+	public GameObject[] currentCards = new GameObject[9]; // Current deck cards
+	public GameObject[] currentSelectedCards = new GameObject[3];
+
+
+	public int selectedNewCardIndex = -1;
+	public int selectedCurrentCardIndex = -1;
+
+	private string randomKnightString;
+	private string randomWizardString;
+	private string randomPriestString;
+
+	void Awake()
+	{
+		selectedNewCardIndex = -1;
+		selectedCurrentCardIndex = -1;
+	}
+
 	// Use this for initialization
 	void Start () {
-		
+		instance = this;
+
+		// Get randomized new 3 cards
+		int randomKnightIndex = Random.Range(1, GlobalDataManager.instance.allCardList.knightCardList.Count);
+		randomKnightString = GlobalDataManager.instance.allCardList.knightCardList[randomKnightIndex];
+
+		int randomWizardIndex = Random.Range(1, GlobalDataManager.instance.allCardList.wizardCardList.Count);
+		randomWizardString = GlobalDataManager.instance.allCardList.wizardCardList[randomWizardIndex];
+
+		int randomPriestIndex = Random.Range(1, GlobalDataManager.instance.allCardList.priestCardList.Count);
+		randomPriestString = GlobalDataManager.instance.allCardList.priestCardList[randomPriestIndex];
+
+		// Load card data from prefabs
+		newCards[0] = Instantiate(Resources.Load("Prefabs/Card/" + randomKnightString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+		newCards[0].transform.position = newCardPositions[0].position;
+		newCardBorders[0].transform.position = newCardPositions[0].position;
+		newCardBorders[0].SetActive(false);
+
+		newCards[1] = Instantiate(Resources.Load("Prefabs/Card/" + randomWizardString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
+		newCards[1].transform.position = newCardPositions[1].position;
+		newCardBorders[1].transform.position = newCardPositions[1].position;
+		newCardBorders[1].SetActive(false);
+
+		newCards[2] = Instantiate(Resources.Load("Prefabs/Card/" + randomPriestString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
+		newCards[2].transform.position = newCardPositions[2].position;
+		newCardBorders[2].transform.position = newCardPositions[2].position;
+		newCardBorders[2].SetActive(false);
+		for (int i = 0; i < 9; i++) // current cards
+		{
+			currentCards[i] = Instantiate(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardList[i]) as GameObject, new Vector3(0, 0, 10), Quaternion.identity); // should instantiate after load resources
+			if (i % 3 == 0)
+				currentCards[i].GetComponent<CardBase>().sealText.text = "J";
+			if (i % 3 == 1)
+				currentCards[i].GetComponent<CardBase>().sealText.text = "Q";
+			if (i % 3 == 2)
+				currentCards[i].GetComponent<CardBase>().sealText.text = "K";
+		}
+
+		// Init selectedCards NULL
+		for (int i = 0; i < 3; i++)
+			currentSelectedCards[i] = null;
+
+		// set current cards border position
+		currentCardBorders[0].transform.position = currentCardPositions[0].position;
+		currentCardBorders[0].SetActive(false);
+		currentCardBorders[1].transform.position = currentCardPositions[1].position;
+		currentCardBorders[1].SetActive(false);
+		currentCardBorders[2].transform.position = currentCardPositions[2].position;
+		currentCardBorders[2].SetActive(false);
+
+		// Start Reward Scene!
+		StartCoroutine(StartRewardScene());
 	}
 	
 	// Update is called once per frame
@@ -16,9 +94,121 @@ public class RewardManager : MonoBehaviour {
 		
 	}
 
+	public IEnumerator StartRewardScene()
+	{
+		// 뽑은 카드를 한 장씩 뒤집을 때 사용
+		yield return new WaitForSeconds(0.1f);
+	}
+
 	// excuted when progress button is clicked
 	public void ClickProgressButton()
 	{
-		sceneManager.GetComponent<ChangeScene> ().ChangeSceneToMenu ();
+		if (selectedCurrentCardIndex != -1 && selectedNewCardIndex != -1)
+		{
+			EndRewardScene();
+			sceneManager.GetComponent<ChangeScene>().ChangeSceneToMenu();
+		}
+	}
+
+	private void EndRewardScene()
+	{
+		if (selectedNewCardIndex == 0)
+		{
+			GlobalDataManager.instance.currentCardList[selectedCurrentCardIndex] = randomKnightString;
+		}
+		else if (selectedNewCardIndex == 1)
+		{
+			GlobalDataManager.instance.currentCardList[3 + selectedCurrentCardIndex] = randomWizardString;
+		}
+		else if (selectedNewCardIndex == 2)
+		{
+			GlobalDataManager.instance.currentCardList[6 + selectedCurrentCardIndex] = randomPriestString;
+		}
+		else
+		{
+			Debug.Log("Selected Card is none");
+		}
+
+	}
+
+	public void ClickNewCard(int index)
+	{
+		if (index == 0)
+		{
+			SetKnightCard();
+		}
+		else if (index == 1)
+		{
+			SetWizardCard();
+		}
+		else if (index == 2)
+		{
+			SetPriestCard();
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			if (i == index)
+				newCardBorders[i].SetActive(true);
+			else
+				newCardBorders[i].SetActive(false);
+		}
+		selectedNewCardIndex = index;
+	}
+
+	public void SetKnightCard()
+	{
+		int count = 0;
+		for (int i = 0; i < 9; i++)
+		{
+			if (0 <= i && i < 3)
+			{
+				currentCards[i].transform.position = currentCardPositions[count].position;
+				currentSelectedCards[count++] = currentCards[i];
+			}
+			else
+				currentCards[i].transform.position = waitPosition.position;
+		}
+	}
+
+	public void SetWizardCard()
+	{
+		int count = 0;
+		for (int i = 0; i < 9; i++)
+		{
+			if (3 <= i && i < 6)
+			{
+				currentCards[i].transform.position = currentCardPositions[count].position;
+				currentSelectedCards[count++] = currentCards[i];
+			}
+			else
+				currentCards[i].transform.position = waitPosition.position;
+		}
+	}
+
+	public void SetPriestCard()
+	{
+		int count = 0;
+		for (int i = 0; i < 9; i++)
+		{
+			if (6 <= i && i < 9)
+			{
+				currentCards[i].transform.position = currentCardPositions[count].position;
+				currentSelectedCards[count++] = currentCards[i];
+			}
+			else
+				currentCards[i].transform.position = waitPosition.position;
+		}
+	}
+
+	public void ClickCurrentCard(int index)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (i == index)
+				currentCardBorders[i].SetActive(true);
+			else
+				currentCardBorders[i].SetActive(false);
+		}
+		selectedCurrentCardIndex = index;
 	}
 }

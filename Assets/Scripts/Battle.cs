@@ -614,6 +614,9 @@ public class Battle : MonoBehaviour {
     public void EndBattle()
     {
         //Time.timeScale = 0;
-        sceneManager.GetComponent<ChangeScene>().ChangeSceneToReward();
+		if (healthPoint <= 0)
+			sceneManager.GetComponent<ChangeScene>().ChangeSceneToMenu();
+		else
+			sceneManager.GetComponent<ChangeScene>().ChangeSceneToReward();
     }
 }

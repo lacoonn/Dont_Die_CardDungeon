@@ -57,13 +57,6 @@ public class CardBase : MonoBehaviour {
 
 	public void Awake()
 	{
-		
-		
-	}
-
-	// Use this for initialization
-	public void Start ()
-    {
 		distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
 		// set seal textmesh
 		if (seal == Seal.J)
@@ -72,6 +65,12 @@ public class CardBase : MonoBehaviour {
 			sealText.text = "Q";
 		else
 			sealText.text = "K";
+	}
+
+	// Use this for initialization
+	public void Start ()
+    {
+		
     }
 
     public void Update()
@@ -120,11 +119,16 @@ public class CardBase : MonoBehaviour {
 				}
 			}
 		}
+		else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
+		{
+			transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 180.0f, 0.0f), Time.deltaTime * 3);
+		}
+			
     }
 
 	void OnMouseDown()
 	{
-		if (isActive)
+		if (isActive) // Battle scene
 		{
 			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
 			{
@@ -138,11 +142,15 @@ public class CardBase : MonoBehaviour {
 				}
 			}
 		}
+		else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
+		{
+
+		}
 	}
 
 	void OnMouseUp()
 	{
-		if (isActive)
+		if (isActive) // Battle scene
 		{
 			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
 			{
@@ -155,7 +163,27 @@ public class CardBase : MonoBehaviour {
 				Battle.instance.CheckPlace(gameObject);
 			}
 		}
-    }
+		else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
+		{
+			// Check new cards
+			for (int i = 0; i < 3; i++)
+			{
+				if (gameObject == RewardManager.instance.newCards[i])
+				{
+					RewardManager.instance.ClickNewCard(i);
+				}
+				if (gameObject == RewardManager.instance.currentSelectedCards[i])
+				{
+					RewardManager.instance.ClickCurrentCard(i);
+				}
+			}
+			/*// Check current cards
+			for (int i = 0; i < 9; i++)
+			{
+
+			}*/
+		}
+	}
 
 	void OnMouseDrag()
 	{
@@ -174,6 +202,10 @@ public class CardBase : MonoBehaviour {
 					transform.position = tempVector3;
 				}
 			}
+		}
+		else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
+		{
+
 		}
     }
 
