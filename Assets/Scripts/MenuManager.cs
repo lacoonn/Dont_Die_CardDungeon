@@ -20,4 +20,16 @@ public class MenuManager : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public void SelectNewGameButton()
+    {
+        GlobalDataManager.instance.saveData = null;
+        GlobalDataManager.instance.saveData = new SaveData();
+        GlobalDataManager.instance.ChangeSceneToBattle();
+    }
+
+    public void SelectExistingGameButton()
+    {
+        GlobalDataManager.instance.ChangeSceneToBattle();
+    }
 }

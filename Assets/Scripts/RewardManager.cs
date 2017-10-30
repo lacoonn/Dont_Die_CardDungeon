@@ -5,8 +5,6 @@ using UnityEngine;
 public class RewardManager : MonoBehaviour {
 	public static RewardManager instance;
 
-	public GameObject sceneManager;
-
 	public Transform waitPosition;
 
 	public Transform[] newCardPositions = new Transform[3];
@@ -64,7 +62,9 @@ public class RewardManager : MonoBehaviour {
 		newCardBorders[2].SetActive(false);
 		for (int i = 0; i < 9; i++) // current cards
 		{
-			currentCards[i] = Instantiate(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardList[i]) as GameObject, new Vector3(0, 0, 10), Quaternion.identity); // should instantiate after load resources
+            SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[i];
+
+            currentCards[i] = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 10), Quaternion.identity); // should instantiate after load resources
 			if (i % 3 == 0)
 				currentCards[i].GetComponent<CardBase>().sealText.text = "J";
 			if (i % 3 == 1)
@@ -106,24 +106,37 @@ public class RewardManager : MonoBehaviour {
 		if (selectedCurrentCardIndex != -1 && selectedNewCardIndex != -1)
 		{
 			EndRewardScene();
-			sceneManager.GetComponent<ChangeScene>().ChangeSceneToMenu();
+            GlobalDataManager.instance.saveData.stageNumber++; // add stage number
+            GlobalDataManager.instance.ChangeSceneToBattle();
 		}
 	}
 
-	private void EndRewardScene()
+	private void EndRewardScene() // Add selected card to current card list
 	{
 		if (selectedNewCardIndex == 0)
 		{
-			GlobalDataManager.instance.currentCardList[selectedCurrentCardIndex] = randomKnightString;
-		}
+            /*SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[selectedCurrentCardIndex];
+            cardData.cardName = randomKnightString;
+            cardData.level = GlobalDataManager.instance.saveData.stageNumber;*/
+            GlobalDataManager.instance.saveData.currentCardList[selectedCurrentCardIndex]
+                = new SaveData.CardData(randomKnightString, GlobalDataManager.instance.saveData.stageNumber);
+        }
 		else if (selectedNewCardIndex == 1)
 		{
-			GlobalDataManager.instance.currentCardList[3 + selectedCurrentCardIndex] = randomWizardString;
-		}
+            /*SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[3 + selectedCurrentCardIndex];
+            cardData.cardName = randomWizardString;
+            cardData.level = GlobalDataManager.instance.saveData.stageNumber;*/
+            GlobalDataManager.instance.saveData.currentCardList[3 + selectedCurrentCardIndex]
+                = new SaveData.CardData(randomWizardString, GlobalDataManager.instance.saveData.stageNumber);
+        }
 		else if (selectedNewCardIndex == 2)
 		{
-			GlobalDataManager.instance.currentCardList[6 + selectedCurrentCardIndex] = randomPriestString;
-		}
+            /*SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[6 + selectedCurrentCardIndex];
+            cardData.cardName = randomPriestString;
+            cardData.level = GlobalDataManager.instance.saveData.stageNumber;*/
+            GlobalDataManager.instance.saveData.currentCardList[6 + selectedCurrentCardIndex]
+                = new SaveData.CardData(randomPriestString, GlobalDataManager.instance.saveData.stageNumber);
+        }
 		else
 		{
 			Debug.Log("Selected Card is none");

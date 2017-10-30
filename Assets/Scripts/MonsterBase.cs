@@ -6,7 +6,7 @@ using UnityEngine;
 public class MonsterBase : MonoBehaviour
 {
 	// 필요한 리소스
-	public GameObject monsterAttackEffect;
+	private GameObject monsterAttackEffect;
 
     public string monsterName;
     public string discription;
@@ -24,6 +24,7 @@ public class MonsterBase : MonoBehaviour
     // Use this for initialization
     public void Start()
     {
+        monsterAttackEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
         healthPoint = maxHealthPoint;
     }
 
@@ -48,7 +49,7 @@ public class MonsterBase : MonoBehaviour
 	{
 		Vector3 tempVector = this.transform.position;
 		tempVector.z -= 1;
-        GameObject gameObject = Instantiate(Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject, tempVector, Quaternion.identity); // should instantiate after load resources
+        Instantiate(monsterAttackEffect, tempVector, Quaternion.identity); // should instantiate after load resources
 		//Instantiate (monsterAttackEffect, tempVector, Quaternion.identity);
         //yield return new WaitForSeconds (monsterAttackEffect.GetComponent<ParticleSystem>().duration);
         yield return new WaitForSeconds (0.5f);

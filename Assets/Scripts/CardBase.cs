@@ -27,6 +27,9 @@ public class CardBase : MonoBehaviour {
     public string cardName;
 	public string description;
 
+    // 카드 레벨
+    public int level = 1;
+
     // 공격 후 카드 능력치 초기화에 사용되는 변수
     public int baseAttackPoint;
     public int baseHealPoint;
@@ -58,19 +61,20 @@ public class CardBase : MonoBehaviour {
 	public void Awake()
 	{
 		distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
-		// set seal textmesh
-		if (seal == Seal.J)
-			sealText.text = "J";
-		else if (seal == Seal.Q)
-			sealText.text = "Q";
-		else
-			sealText.text = "K";
 	}
 
 	// Use this for initialization
 	public void Start ()
     {
-		
+        // set seal textmesh
+        if (seal == Seal.J)
+            sealText.text = "J";
+        else if (seal == Seal.Q)
+            sealText.text = "Q";
+        else
+            sealText.text = "K";
+
+        
     }
 
     public void Update()
@@ -83,7 +87,7 @@ public class CardBase : MonoBehaviour {
 	{
 		if (isActive)
 		{
-			if (Battle.instance.gameState == Battle.GameState.CardAttackStart || Battle.instance.gameState == Battle.GameState.CardAttacking || Battle.instance.gameState == Battle.GameState.CardAttackFinish)
+			if (Battle.instance.gameState == Battle.GameState.CardAttackStart || Battle.instance.gameState == Battle.GameState.CardAttacking)
 			{
 				if (gameObject == Battle.instance.attackingCard)
 				{
@@ -101,6 +105,10 @@ public class CardBase : MonoBehaviour {
 					}
 				}
 			}
+            else if (Battle.instance.gameState == Battle.GameState.CardAttackFinish)
+            {
+
+            }
 			else
 			{
 				// 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.

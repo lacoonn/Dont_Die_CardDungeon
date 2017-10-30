@@ -7,10 +7,6 @@ public class Battle : MonoBehaviour {
     // 배틀 인스턴스
 	public static Battle instance;
 
-	// 사용할 오브젝트들
-    public GameObject sceneManager;
-	public GameObject leaderEffect;
-
     // 조합 배율
     public int DOUBLE = 2; // Seal이 같은 카드가 두 장
     public int TRIPLE = 5; // Seal이 같은 카드가 세 장
@@ -37,6 +33,9 @@ public class Battle : MonoBehaviour {
     public List<GameObject> deckCards = new List<GameObject>();
     public List<GameObject> tombCards = new List<GameObject>();
 
+    // private 오브젝트
+    private GameObject leaderEffect;
+
     // 체력 변수
     public int healthPoint = 0;
     public int maxHealthPoint = 0;
@@ -46,6 +45,7 @@ public class Battle : MonoBehaviour {
     public float combination = 1;
 
     // 텍스트 매쉬
+    public TextMesh stageNumberText;
     public TextMesh healthText;
     public TextMesh combinationText;
 
@@ -77,8 +77,12 @@ public class Battle : MonoBehaviour {
 		int zPos = 0;
 		for (int i = 0; i < 9; i++)
 		{
-			//Debug.Log(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardNameList[i]) as GameObject);
-			GameObject gameObject = Instantiate(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardList[i]) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+            //Debug.Log(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardNameList[i]) as GameObject);
+            SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[i];
+            GameObject gameObject = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+            //
+            // I should set level to card!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //
 			CardBase cardBase = gameObject.GetComponent<CardBase>();
 			cardBase.isActive = true;
 			// 각인 설정
@@ -114,6 +118,10 @@ public class Battle : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        leaderEffect = Resources.Load("Prefabs/Effect/LeaderEffect") as GameObject;
+
+        stageNumberText.text = "Stage " + GlobalDataManager.instance.saveData.stageNumber;
+
 		StartCoroutine(StartGame());
     }
 
@@ -321,6 +329,8 @@ public class Battle : MonoBehaviour {
 
 			StartCoroutine(DrawCardFromDeck(tempStatus));
 
+            StartCoroutine(EndTurn());
+
             return;
         }
     }
@@ -336,7 +346,7 @@ public class Battle : MonoBehaviour {
         // 전투!!!
         Vector3 tempVector = fieldPos [1].transform.position;
         tempVector.z -= 10;
-        GameObject gameObject = Instantiate(Resources.Load("Prefabs/Effect/LeaderEffect") as GameObject, tempVector, Quaternion.identity); // should instantiate after load resources
+        Instantiate(leaderEffect, tempVector, Quaternion.identity); // should instantiate after load resources
 		yield return new WaitForSeconds (0.5f);
 		fieldCards [1].GetComponent<CardBase> ().ApplyLeaderEffect ();
         for (int i = 0; i < fieldCards.Length; i++)
@@ -351,23 +361,20 @@ public class Battle : MonoBehaviour {
 		}
         gameState = GameState.Default;
 
-        // 몬스터 공격!
-        monster.GetComponent<MonsterBase>().AttackPlayer();
-
         // 턴 종료
-        EndTurn();
-        
+        StartCoroutine(EndTurn());
+
         // 필드의 카드를 무덤으로!!!
         for (int i = 0; i < fieldCards.Length; i++)
         {
             CardToTomb(fieldCards[i]);
         }
-        
+
         // 드로우!!!
         for (int i = 0; i < fieldCards.Length; i++)
         {
-			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
-			yield return new WaitForSeconds (0.1f);
+            StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
@@ -599,9 +606,15 @@ public class Battle : MonoBehaviour {
 		//UpdateBoard();
 	}
 
-	void EndTurn()
+    // 턴을 끝낼 때 필요한 필수동작
+	IEnumerator EndTurn()
 	{
-		turnNumber += 1;
+        // 몬스터 공격!
+        monster.GetComponent<MonsterBase>().AttackPlayer();
+
+        yield return new WaitForSeconds(0.5f);
+
+        turnNumber += 1;
 
 		OnNewTurn();
 	}
@@ -614,9 +627,13 @@ public class Battle : MonoBehaviour {
     public void EndBattle()
     {
         //Time.timeScale = 0;
-		if (healthPoint <= 0)
-			sceneManager.GetComponent<ChangeScene>().ChangeSceneToMenu();
-		else
-			sceneManager.GetComponent<ChangeScene>().ChangeSceneToReward();
+        if (healthPoint <= 0) // Lose
+        {
+            GlobalDataManager.instance.ChangeSceneToMenu();
+        }
+        else // Victory
+        {
+            GlobalDataManager.instance.ChangeSceneToReward();
+        }
     }
 }
