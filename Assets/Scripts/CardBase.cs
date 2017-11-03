@@ -33,12 +33,12 @@ public class CardBase : MonoBehaviour {
     // 공격 후 카드 능력치 초기화에 사용되는 변수
     public int baseAttackPoint;
     public int baseHealPoint;
-    public int baseHealthPoint;
+    public int baseHp;
 
-    // 실제 적용되는 가드 능력치
+    // 실제 적용되는 카드 능력치
     public int attackPoint;
 	public int healPoint;
-    public int healthPoint;
+    public int hp;
 
     // 텍스트 매쉬
 	public TextMesh nameText;
@@ -217,7 +217,7 @@ public class CardBase : MonoBehaviour {
 		}
     }
 
-    public void AttackMonster(GameObject target, CustomAction action) // 몬스터를 공격!!
+	virtual public void AttackMonster(GameObject target, CustomAction action) // 몬스터를 공격!!
     {
         Debug.Log("Card attack monster!");
         // Attack monster
@@ -230,7 +230,7 @@ public class CardBase : MonoBehaviour {
         Battle.instance.AddHistory(this, target.GetComponent<MonsterBase>());
     }
 
-	public void ApplyLeaderEffect()
+	virtual public void ApplyLeaderEffect()
 	{
 		
 	}
@@ -267,7 +267,7 @@ public class CardBase : MonoBehaviour {
             description = this.description,
             attackPoint = this.attackPoint,
             healPoint = this.healPoint,
-            healthPoint = this.healthPoint,
+            hp = this.hp,
             newPos = this.newPos,
             distanceToScreen = this.distanceToScreen,
             Selected = this.Selected

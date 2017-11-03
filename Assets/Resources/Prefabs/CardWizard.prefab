@@ -323,7 +323,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1007430450814966}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -26.080286, y: -11.000519, z: 0}
+  m_LocalPosition: {x: -23.7, y: -6.89, z: 0}
   m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_Children:
   - {fileID: 4021091675414226}
@@ -536,7 +536,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: b1400a88f57af8e428675bfab317f32f, type: 2}
+  - {fileID: 2100000, guid: 61d51abd74d48c34e8d0be2195f75708, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -891,6 +891,7 @@ MonoBehaviour:
   index: 0
   cardName: 
   description: 
+  level: 1
   baseAttackPoint: 0
   baseHealPoint: 0
   baseHealthPoint: 0

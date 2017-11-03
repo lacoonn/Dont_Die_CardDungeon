@@ -8,12 +8,11 @@ public class Battle : MonoBehaviour {
 	public static Battle instance;
 
     // 조합 배율
-    public int DOUBLE = 2; // Seal이 같은 카드가 두 장
-    public int TRIPLE = 5; // Seal이 같은 카드가 세 장
-    public int STRAIGHT = 3; // Seal이 종류별로 세 장
-    public int DUO = 2; // 직업이 같은 카드가 두 장
-    public int TRIO = 5; // 직업이 같은 카드가 세 장
-    public int COLLABORATION = 3; // 직업이 종류별로 세 장
+    public int TRIPLE = 3; // Seal이 같은 카드가 세 장(3)
+    public int STRAIGHT = 2; // Seal이 종류별로 세 장(27)
+    public int DUO = 2; // 직업이 같은 카드가 두 장(9)
+    public int TRIO = 5; // 직업이 같은 카드가 세 장(3)
+    public int COLLABORATION = 3; // 직업이 종류별로 세 장(27)
 
     // 게임 상태
     public enum GameState { Default, ShuffleStart, Shuffling, ShuffleEnd, CardAttackStart, CardAttacking, CardAttackFinish, MonsterAttacking };
@@ -37,8 +36,8 @@ public class Battle : MonoBehaviour {
     private GameObject leaderEffect;
 
     // 체력 변수
-    public int healthPoint = 0;
-    public int maxHealthPoint = 0;
+    public int currentHp = 0;
+    public int maxHp = 0;
     
     // 조합 배율 변수
     public float baseCombination = 1;
@@ -49,7 +48,9 @@ public class Battle : MonoBehaviour {
     public TextMesh healthText;
     public TextMesh combinationText;
 
+    // 현재 게임 변수
     public bool gameStarted = true;
+    public List<ConditionBase> conditionList;
 
     // 턴
 	public int turnNumber = 1;
@@ -69,12 +70,16 @@ public class Battle : MonoBehaviour {
 		// 게임스테이트 초기화
 		gameState = GameState.Default;
 
-		// 몬스터 초기화
-		monster.transform.position = monsterPos.position;
+        // 몬스터 초기화
+        monster = Instantiate(Resources.Load("Prefabs/BaseMonster") as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+        monster.transform.position = monsterPos.position;
 		monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;
 
-		// 모든 카드를 덱으로 이동
-		int zPos = 0;
+        // 상태이상 리스트 초기화
+        conditionList = new List<ConditionBase>();
+
+        // 모든 카드를 덱으로 이동
+        int zPos = 0;
 		for (int i = 0; i < 9; i++)
 		{
             //Debug.Log(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardNameList[i]) as GameObject);
@@ -96,22 +101,22 @@ public class Battle : MonoBehaviour {
 			// 공, 체, 힐을 기본으로 변경
 			cardBase.attackPoint = cardBase.baseAttackPoint;
 			cardBase.healPoint = cardBase.baseHealPoint;
-			cardBase.healthPoint = cardBase.baseHealthPoint;
+			cardBase.hp = cardBase.baseHp;
 
 			cardBase.status = CardBase.Status.inTomb;
 			cardBase.newPos = tombPos.position;
 			cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
 
 			// 플레이어 체력에 카드 체력 추가
-			maxHealthPoint += cardBase.healthPoint;
+			maxHp += cardBase.hp;
 
 			// 덱 카드에 오브젝트 할당
 			tombCards.Add(gameObject);
 		}
-		healthPoint = maxHealthPoint;
+		currentHp = maxHp;
 
 		// 텍스트매쉬 초기화
-		healthText.text = healthPoint.ToString();
+		healthText.text = currentHp.ToString();
 		combinationText.text = combination.ToString();
 	}
 
@@ -140,7 +145,7 @@ public class Battle : MonoBehaviour {
     void FixedUpdate()
     {
         // 텍스트매쉬 초기화
-        healthText.text = healthPoint.ToString() + "/" + maxHealthPoint.ToString();
+        healthText.text = currentHp.ToString() + "/" + maxHp.ToString();
         combinationText.text = combination.ToString();
     }
 
@@ -238,7 +243,6 @@ public class Battle : MonoBehaviour {
 	{
 		GameObject tempCard;
 
-		GameState tempState = gameState;
 		gameState = GameState.ShuffleStart;
 
 		while (tombCards.Count > 0)
@@ -343,13 +347,16 @@ public class Battle : MonoBehaviour {
             fieldCards[i].transform.position = fieldPos[i].position;
             fieldCards[i].transform.rotation = new Quaternion(0, 180, 0, 0);
         }
-        // 전투!!!
+        
+        // 리더 효과 적용
         Vector3 tempVector = fieldPos [1].transform.position;
         tempVector.z -= 10;
         Instantiate(leaderEffect, tempVector, Quaternion.identity); // should instantiate after load resources
-		yield return new WaitForSeconds (0.5f);
 		fieldCards [1].GetComponent<CardBase> ().ApplyLeaderEffect ();
-        for (int i = 0; i < fieldCards.Length; i++)
+		yield return new WaitForSeconds(0.5f);
+
+		// 전투!!!
+		for (int i = 0; i < fieldCards.Length; i++)
         {
             gameState = GameState.CardAttacking;
             attackingCard = fieldCards[i];
@@ -361,14 +368,16 @@ public class Battle : MonoBehaviour {
 		}
         gameState = GameState.Default;
 
-        // 턴 종료
-        StartCoroutine(EndTurn());
-
         // 필드의 카드를 무덤으로!!!
         for (int i = 0; i < fieldCards.Length; i++)
         {
             CardToTomb(fieldCards[i]);
         }
+		yield return new WaitForSeconds(0.5f);
+
+		// 턴 종료
+		StartCoroutine(EndTurn());
+        yield return new WaitForSeconds(0.5f);
 
         // 드로우!!!
         for (int i = 0; i < fieldCards.Length; i++)
@@ -493,21 +502,8 @@ public class Battle : MonoBehaviour {
             if (cardBase.job == CardBase.Job.Priest)
                 PRIEST++;
         }
-        if (J == 2) // 파악한 갯수에 맞게 조합 배율 업데이트 => 각인
-        {
-            combination *= DOUBLE;
-            Debug.Log("Double");
-        }
-        if (Q == 2)
-        {
-            combination *= DOUBLE;
-            Debug.Log("Double");
-        }
-        if (K == 2)
-        {
-            combination *= DOUBLE;
-            Debug.Log("Double");
-        }
+
+        // 파악한 갯수에 맞게 조합 배율 업데이트 => 각인
         if (J == 3)
         {
             combination *= TRIPLE;
@@ -571,7 +567,6 @@ public class Battle : MonoBehaviour {
 
             cardBase.attackPoint = (int)(cardBase.baseAttackPoint * combination);
             cardBase.healPoint = (int)(cardBase.baseHealPoint * combination);
-            cardBase.healthPoint = (int)(cardBase.baseHealthPoint * combination);
         }
         // 핸드의 카드에 조합 배율 제거
         for (int i = 0; i < handCards.Length; i++)
@@ -580,54 +575,81 @@ public class Battle : MonoBehaviour {
 
             cardBase.attackPoint = cardBase.baseAttackPoint;
             cardBase.healPoint = cardBase.baseHealPoint;
-            cardBase.healthPoint = cardBase.baseHealthPoint;
         }
     }
 
     public void Attacked(int damage)
     {
-        healthPoint -= damage;
-        if (healthPoint <= 0)
+        currentHp -= damage;
+        if (currentHp <= 0)
         {
-            healthPoint = 0;
+            currentHp = 0;
             EndBattle();
         }
     }
 
     public void Healed(int healPoint)
     {
-        healthPoint += healPoint;
-        if (healthPoint > maxHealthPoint)
-            healthPoint = maxHealthPoint;
+        currentHp += healPoint;
+        if (currentHp > maxHp)
+            currentHp = maxHp;
     }
-
-    void UpdateGame()
-	{
-		//UpdateBoard();
-	}
 
     // 턴을 끝낼 때 필요한 필수동작
 	IEnumerator EndTurn()
 	{
+        // 상태 이상 적용
+        UpdateCondition(ConditionBase.ApplicationTime.TurnEnd);
+
         // 몬스터 공격!
-        monster.GetComponent<MonsterBase>().AttackPlayer();
+        if (monster.GetComponent<MonsterBase>().TryToAttack())
+        {
+            monster.GetComponent<MonsterBase>().AttackPlayer();
 
-        yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.5f);
+        }
 
+        // 턴 번호 증가
         turnNumber += 1;
 
 		OnNewTurn();
 	}
 
-	void OnNewTurn()
+    void OnNewTurn()
+    {
+        // 플레이어 체력, 몬스터 체력, 공격력, 방어력 등 다시 계산
+
+        // 상태이상 적용
+        UpdateCondition(ConditionBase.ApplicationTime.Always);
+    }
+
+    public void UpdateCondition(ConditionBase.ApplicationTime currentTime)
 	{
-		UpdateGame();
+        foreach(ConditionBase conditionItem in conditionList)
+        {
+            if (conditionItem.applicationTime == currentTime)
+            {
+                if (conditionItem.applicationTarget == ConditionBase.ApplicationTarget.Player)
+                {
+                    conditionItem.ApplyCondition(Battle.instance);
+                }
+                else if (conditionItem.applicationTarget == ConditionBase.ApplicationTarget.Monster)
+                {
+                    conditionItem.ApplyCondition(monster.GetComponent<MonsterBase>());
+                }
+
+                if (conditionItem.leftTurn <= 0)
+                {
+                    conditionList.Remove(conditionItem);
+                }
+            }
+        }
 	}
 
     public void EndBattle()
     {
         //Time.timeScale = 0;
-        if (healthPoint <= 0) // Lose
+        if (currentHp <= 0) // Lose
         {
             GlobalDataManager.instance.ChangeSceneToMenu();
         }

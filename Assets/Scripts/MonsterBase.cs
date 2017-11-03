@@ -11,13 +11,21 @@ public class MonsterBase : MonoBehaviour
     public string monsterName;
     public string discription;
 
-    public int healthPoint;
-    public int maxHealthPoint;
+    // base 속성
+    public int baseMaxHp;
+    public int baseAttackPoint;
+    public int attackTurnInterval;
 
-    public int attackPoint;
+    // 현재 게임 속성
+    public int maxHp;
+    public int currentHp;
+    public int currentAttackPoint;
+    public int turnLeftUntilAttack;
 
+    public bool canWork;
 
     public TextMesh healthText;
+    public TextMesh turnLeftUntilAttackText;
 
     public Vector3 homePosition;
 
@@ -25,44 +33,71 @@ public class MonsterBase : MonoBehaviour
     public void Start()
     {
         monsterAttackEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
-        healthPoint = maxHealthPoint;
+        // base -> current
+        maxHp = baseMaxHp;
+        currentHp = maxHp;
+        currentAttackPoint = baseAttackPoint;
+        turnLeftUntilAttack = attackTurnInterval;
+        canWork = true;
     }
 
     public void Update()
     {
-        healthText.text = healthPoint.ToString() + "/" + maxHealthPoint.ToString();
+        healthText.text = currentHp.ToString() + "/" + maxHp.ToString();
     }
 
     public void FixedUpdate()
     {
-        transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
+        if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Battle)
+            transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
     }
 
-    public void AttackPlayer()
+    public bool TryToAttack()
+    {
+        if(turnLeftUntilAttack <= 1)
+        {
+            if (canWork)
+            {
+                return true;
+            }
+            else
+            {
+                canWork = true;
+                return false;
+            }
+        }
+        else
+        {
+            if (canWork)
+            {
+                turnLeftUntilAttack--;
+                return false;
+            }
+            else
+            {
+                canWork = true;
+                return false;
+            }
+        }
+    }
+
+    public IEnumerator AttackPlayer()
     {
         Debug.Log("Monster attack player!");
-		StartCoroutine (ShowAttackEffect ());
-        //Battle.instance.Attacked(attackPoint);
+        Vector3 tempVector = transform.position;
+        tempVector.z -= (float)0.1;
+        Instantiate(monsterAttackEffect, tempVector, Quaternion.identity);
+        yield return new WaitForSeconds(0.5f);
+        turnLeftUntilAttack = attackTurnInterval;
+        Battle.instance.Attacked(currentAttackPoint);
     }
-
-	IEnumerator ShowAttackEffect()
-	{
-		Vector3 tempVector = this.transform.position;
-		tempVector.z -= 1;
-        Instantiate(monsterAttackEffect, tempVector, Quaternion.identity); // should instantiate after load resources
-		//Instantiate (monsterAttackEffect, tempVector, Quaternion.identity);
-        //yield return new WaitForSeconds (monsterAttackEffect.GetComponent<ParticleSystem>().duration);
-        yield return new WaitForSeconds (0.5f);
-		Battle.instance.Attacked(attackPoint);
-		// 코루틴 뒤에 더 이상 작동할 코드가 없다면 쉬지않음
-	}
 
     public void Attacked(int damage)
     {
-        healthPoint -= damage;
-        if (healthPoint <= 0)
+        currentHp -= damage;
+        if (currentHp <= 0)
         {
-            healthPoint = 0;
+            currentHp = 0;
             Battle.instance.EndBattle();
         }
     }

@@ -27,70 +27,72 @@ public class RewardManager : MonoBehaviour {
 
 	void Awake()
 	{
-		selectedNewCardIndex = -1;
+        instance = this;
+
+        selectedNewCardIndex = -1;
 		selectedCurrentCardIndex = -1;
-	}
 
-	// Use this for initialization
-	void Start () {
-		instance = this;
+        // Get randomized new 3 cards
+        int randomKnightIndex = Random.Range(1, GlobalDataManager.instance.allCardList.knightCardList.Count);
+        randomKnightString = GlobalDataManager.instance.allCardList.knightCardList[randomKnightIndex];
 
-		// Get randomized new 3 cards
-		int randomKnightIndex = Random.Range(1, GlobalDataManager.instance.allCardList.knightCardList.Count);
-		randomKnightString = GlobalDataManager.instance.allCardList.knightCardList[randomKnightIndex];
+        int randomWizardIndex = Random.Range(1, GlobalDataManager.instance.allCardList.wizardCardList.Count);
+        randomWizardString = GlobalDataManager.instance.allCardList.wizardCardList[randomWizardIndex];
 
-		int randomWizardIndex = Random.Range(1, GlobalDataManager.instance.allCardList.wizardCardList.Count);
-		randomWizardString = GlobalDataManager.instance.allCardList.wizardCardList[randomWizardIndex];
+        int randomPriestIndex = Random.Range(1, GlobalDataManager.instance.allCardList.priestCardList.Count);
+        randomPriestString = GlobalDataManager.instance.allCardList.priestCardList[randomPriestIndex];
 
-		int randomPriestIndex = Random.Range(1, GlobalDataManager.instance.allCardList.priestCardList.Count);
-		randomPriestString = GlobalDataManager.instance.allCardList.priestCardList[randomPriestIndex];
+        // Load card data from prefabs
+        newCards[0] = Instantiate(Resources.Load("Prefabs/Card/" + randomKnightString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+        newCards[0].transform.position = newCardPositions[0].position;
+        newCardBorders[0].transform.position = newCardPositions[0].position;
+        newCardBorders[0].SetActive(false);
 
-		// Load card data from prefabs
-		newCards[0] = Instantiate(Resources.Load("Prefabs/Card/" + randomKnightString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
-		newCards[0].transform.position = newCardPositions[0].position;
-		newCardBorders[0].transform.position = newCardPositions[0].position;
-		newCardBorders[0].SetActive(false);
+        newCards[1] = Instantiate(Resources.Load("Prefabs/Card/" + randomWizardString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
+        newCards[1].transform.position = newCardPositions[1].position;
+        newCardBorders[1].transform.position = newCardPositions[1].position;
+        newCardBorders[1].SetActive(false);
 
-		newCards[1] = Instantiate(Resources.Load("Prefabs/Card/" + randomWizardString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
-		newCards[1].transform.position = newCardPositions[1].position;
-		newCardBorders[1].transform.position = newCardPositions[1].position;
-		newCardBorders[1].SetActive(false);
-
-		newCards[2] = Instantiate(Resources.Load("Prefabs/Card/" + randomPriestString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
-		newCards[2].transform.position = newCardPositions[2].position;
-		newCardBorders[2].transform.position = newCardPositions[2].position;
-		newCardBorders[2].SetActive(false);
-		for (int i = 0; i < 9; i++) // current cards
-		{
+        newCards[2] = Instantiate(Resources.Load("Prefabs/Card/" + randomPriestString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
+        newCards[2].transform.position = newCardPositions[2].position;
+        newCardBorders[2].transform.position = newCardPositions[2].position;
+        newCardBorders[2].SetActive(false);
+        for (int i = 0; i < 9; i++) // current cards
+        {
             SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[i];
 
             currentCards[i] = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 10), Quaternion.identity); // should instantiate after load resources
-			if (i % 3 == 0)
-				currentCards[i].GetComponent<CardBase>().sealText.text = "J";
-			if (i % 3 == 1)
-				currentCards[i].GetComponent<CardBase>().sealText.text = "Q";
-			if (i % 3 == 2)
-				currentCards[i].GetComponent<CardBase>().sealText.text = "K";
-		}
+            if (i % 3 == 0)
+                currentCards[i].GetComponent<CardBase>().seal = CardBase.Seal.J;
+            if (i % 3 == 1)
+                currentCards[i].GetComponent<CardBase>().seal = CardBase.Seal.Q;
+            if (i % 3 == 2)
+                currentCards[i].GetComponent<CardBase>().seal = CardBase.Seal.K;
+        }
 
-		// Init selectedCards NULL
-		for (int i = 0; i < 3; i++)
-			currentSelectedCards[i] = null;
+        // Init selectedCards NULL
+        for (int i = 0; i < 3; i++)
+            currentSelectedCards[i] = null;
 
-		// set current cards border position
-		currentCardBorders[0].transform.position = currentCardPositions[0].position;
-		currentCardBorders[0].SetActive(false);
-		currentCardBorders[1].transform.position = currentCardPositions[1].position;
-		currentCardBorders[1].SetActive(false);
-		currentCardBorders[2].transform.position = currentCardPositions[2].position;
-		currentCardBorders[2].SetActive(false);
+        // set current cards border position
+        currentCardBorders[0].transform.position = currentCardPositions[0].position;
+        currentCardBorders[0].SetActive(false);
+        currentCardBorders[1].transform.position = currentCardPositions[1].position;
+        currentCardBorders[1].SetActive(false);
+        currentCardBorders[2].transform.position = currentCardPositions[2].position;
+        currentCardBorders[2].SetActive(false);
+    }
 
+	// Use this for initialization
+	void Start ()
+    {
 		// Start Reward Scene!
 		StartCoroutine(StartRewardScene());
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 		
 	}
 
