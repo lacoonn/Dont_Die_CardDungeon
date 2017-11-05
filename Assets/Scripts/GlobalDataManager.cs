@@ -16,11 +16,9 @@ public class GlobalDataManager : MonoBehaviour
 
 	public Scene scene = Scene.Menu;
 
-	public AllCardList allCardList = new AllCardList();
+	public AllCardList allCardList;
 
     public SaveData saveData;
-
-    FileStream fileStream;
 
 
     void Awake()
@@ -33,11 +31,13 @@ public class GlobalDataManager : MonoBehaviour
 		instance = this;
 		DontDestroyOnLoad (gameObject);
 
+        allCardList = new AllCardList();
+
         // Read savedata or init saveData variable
         if (File.Exists("savedata.xml"))
         {
             Debug.Log("Find save data");
-            fileStream = new FileStream("savedata.xml", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+            FileStream fileStream = new FileStream("savedata.xml", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
             XmlReader xmlReader = XmlReader.Create(fileStream);
             if(fileStream.CanRead)
             {
@@ -47,20 +47,12 @@ public class GlobalDataManager : MonoBehaviour
                 Debug.Log("Deserialize start");
                 saveData = (SaveData)xmlSerializer.Deserialize(xmlReader);
                 Debug.Log("Deserialize end");
-                //
-                /*if (xmlSerializer.CanDeserialize(xmlReader))
-                {
-                    Debug.Log("Deserialize save data");
-                    saveData = (SaveData)xmlSerializer.Deserialize(xmlReader);
-                }
-                else
-                {
-                    saveData = new SaveData();
-                }*/
+                Debug.Log(saveData.currentCardList.Count);
             }
             else
             {
                 saveData = new SaveData();
+                saveData.InitSaveData();
             }
             fileStream.Close();
         }
@@ -68,6 +60,7 @@ public class GlobalDataManager : MonoBehaviour
         {
             Debug.Log("Not exist save data");
             saveData = new SaveData();
+            saveData.InitSaveData();
         }
 
 		instance.isInit = true;
@@ -82,7 +75,7 @@ public class GlobalDataManager : MonoBehaviour
     public void SaveDataToXml()
     {
         // Save data before quit
-        fileStream = new FileStream("savedata.xml", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        FileStream fileStream = new FileStream("savedata.xml", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
         XmlWriter xmlWriter = XmlWriter.Create(fileStream);
         XmlSerializer xmlSerializer = new XmlSerializer(typeof(SaveData));
         xmlSerializer.Serialize(xmlWriter, saveData);

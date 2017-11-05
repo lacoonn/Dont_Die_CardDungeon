@@ -15,7 +15,7 @@ public class Battle : MonoBehaviour {
     public int COLLABORATION = 3; // 직업이 종류별로 세 장(27)
 
     // 게임 상태
-    public enum GameState { Default, ShuffleStart, Shuffling, ShuffleEnd, CardAttackStart, CardAttacking, CardAttackFinish, MonsterAttacking };
+    public enum GameState { Default, ShuffleStart, Shuffling, ShuffleEnd, Drawing, DrawEnd, CardAttackStart, CardAttacking, CardAttackFinish, MonsterAttacking };
     public GameState gameState;
 
     // 포지션 관련 변수
@@ -36,8 +36,8 @@ public class Battle : MonoBehaviour {
     private GameObject leaderEffect;
 
     // 체력 변수
-    public int currentHp = 0;
-    public int maxHp = 0;
+    public int currentHp;
+    public int maxHp;
     
     // 조합 배율 변수
     public float baseCombination = 1;
@@ -85,11 +85,15 @@ public class Battle : MonoBehaviour {
             //Debug.Log(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardNameList[i]) as GameObject);
             SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[i];
             GameObject gameObject = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+			CardBase cardBase = gameObject.GetComponent<CardBase>();
             //
             // I should set level to card!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            cardBase.level = cardData.level;
+            cardBase.baseAttackPoint *= (int)(1 + (cardBase.level - 1) * 0.1);
+            cardBase.baseHealPoint *= (int)(1 + (cardBase.level - 1) * 0.1);
+            cardBase.baseHp *= (int)(1 + (cardBase.level - 1) * 0.1);
             //
-			CardBase cardBase = gameObject.GetComponent<CardBase>();
-			cardBase.isActive = true;
+            cardBase.isActive = true;
 			// 각인 설정
 			if (i % 3 == 0)
 				cardBase.seal = CardBase.Seal.J;
@@ -109,6 +113,7 @@ public class Battle : MonoBehaviour {
 
 			// 플레이어 체력에 카드 체력 추가
 			maxHp += cardBase.hp;
+            Debug.Log(maxHp);
 
 			// 덱 카드에 오브젝트 할당
 			tombCards.Add(gameObject);
@@ -185,13 +190,17 @@ public class Battle : MonoBehaviour {
 	// 카드를 덱에서 특정 Status로 드로우한다.
 	public IEnumerator DrawCardFromDeck(CardBase.Status goalStatus)
 	{
+		gameState = GameState.Drawing;
 		GameObject tempCard;
 
 		if (deckCards.Count == 0) // 덱에 카드가 없으면 셔플
 		{
 			StartCoroutine(ShuffleDeck());
 
-			yield return new WaitForSeconds(1f);
+			while (gameState == GameState.Shuffling)
+				yield return new WaitForSeconds(0.1f);
+
+			gameState = GameState.Drawing;
 		}
 
 		if (goalStatus == CardBase.Status.inField) // 필드로 드로우할 경우
@@ -236,6 +245,8 @@ public class Battle : MonoBehaviour {
 
 		// 카드를 드로우 한 뒤 조합 상태를 확인
 		UpdateCombination();
+
+		gameState = GameState.DrawEnd;
 	}
 
 	// 무덤의 카드를 덱으로 섞는다.
@@ -243,7 +254,7 @@ public class Battle : MonoBehaviour {
 	{
 		GameObject tempCard;
 
-		gameState = GameState.ShuffleStart;
+		gameState = GameState.Shuffling;
 
 		while (tombCards.Count > 0)
 		{
@@ -378,13 +389,6 @@ public class Battle : MonoBehaviour {
 		// 턴 종료
 		StartCoroutine(EndTurn());
         yield return new WaitForSeconds(0.5f);
-
-        // 드로우!!!
-        for (int i = 0; i < fieldCards.Length; i++)
-        {
-            StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
-            yield return new WaitForSeconds(0.1f);
-        }
     }
 
     public void CardToTomb(GameObject cardObject)
@@ -604,7 +608,7 @@ public class Battle : MonoBehaviour {
         // 몬스터 공격!
         if (monster.GetComponent<MonsterBase>().TryToAttack())
         {
-            monster.GetComponent<MonsterBase>().AttackPlayer();
+            StartCoroutine(monster.GetComponent<MonsterBase>().AttackPlayer());
 
             yield return new WaitForSeconds(0.5f);
         }
@@ -612,12 +616,34 @@ public class Battle : MonoBehaviour {
         // 턴 번호 증가
         turnNumber += 1;
 
-		OnNewTurn();
+		StartCoroutine(OnNewTurn());
 	}
 
-    void OnNewTurn()
+    IEnumerator OnNewTurn()
     {
-        // 플레이어 체력, 몬스터 체력, 공격력, 방어력 등 다시 계산
+		// 드로우!!!
+		for (int i = 0; i < fieldCards.Length; i++)
+		{
+			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
+			yield return new WaitForSeconds(0.1f);
+		}
+
+		while (gameState == GameState.Drawing)
+			yield return new WaitForSeconds(0.1f);
+
+		// 플레이어 체력, 몬스터 체력, 공격력, 방어력 등 다시 계산
+		//--------------------------
+
+		// 카드 능력치 다시 계산
+		foreach (GameObject gameObject in fieldCards)
+		{
+			CardBase fieldCardScript = gameObject.GetComponent<CardBase>();
+			fieldCardScript.attackPoint = fieldCardScript.baseAttackPoint;
+			fieldCardScript.healPoint = fieldCardScript.baseHealPoint;
+		}
+
+		// 조합효과 다시 계산
+		UpdateCombination();
 
         // 상태이상 적용
         UpdateCondition(ConditionBase.ApplicationTime.Always);

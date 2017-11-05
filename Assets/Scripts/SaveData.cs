@@ -21,7 +21,7 @@ public class SaveData
     public int stageNumber;
     public List<CardData> currentCardList;
 
-    public SaveData()
+    public void InitSaveData()
     {
         stageNumber = 1;
         currentCardList = new List<CardData>();
@@ -41,11 +41,5 @@ public class SaveData
             currentCardList.Add(new SaveData.CardData("BeginnerPriest", 1));
             currentCardList.Add(new SaveData.CardData("BeginnerPriest", 1));
         }
-    }
-
-    public SaveData(int _stageNumber, List<CardData> _currentCardList)
-    {
-        stageNumber = _stageNumber;
-        currentCardList = _currentCardList;
     }
 }

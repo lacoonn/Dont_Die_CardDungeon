@@ -203,6 +203,7 @@ MonoBehaviour:
   currentHp: 0
   currentAttackPoint: 0
   turnLeftUntilAttack: 0
+  canWork: 0
   healthText: {fileID: 102300554494890564}
   turnLeftUntilAttackText: {fileID: 0}
   homePosition: {x: 0, y: 0, z: 0}
