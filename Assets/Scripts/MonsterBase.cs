@@ -9,18 +9,20 @@ public class MonsterBase : MonoBehaviour
 	private GameObject monsterAttackEffect;
 
     public string monsterName;
-    public string discription;
+    public string description;
 
     // base 속성
     public int baseMaxHp;
     public int baseAttackPoint;
-    public int attackTurnInterval;
+	public int baseArmor;
+	public int attackTurnInterval;
 
     // 현재 게임 속성
     public int maxHp;
     public int currentHp;
     public int currentAttackPoint;
-    public int turnLeftUntilAttack;
+	public int currentArmor;
+	public int turnLeftUntilAttack;
 
     public bool canWork;
 
@@ -29,14 +31,20 @@ public class MonsterBase : MonoBehaviour
 
     public Vector3 homePosition;
 
-    // Use this for initialization
-    public void Start()
+	public void Awake()
+	{
+
+	}
+
+	// Use this for initialization
+	public void Start()
     {
         monsterAttackEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
         // base -> current
         maxHp = baseMaxHp;
         currentHp = maxHp;
         currentAttackPoint = baseAttackPoint;
+		currentArmor = baseArmor;
         turnLeftUntilAttack = attackTurnInterval;
         canWork = true;
     }
@@ -92,13 +100,17 @@ public class MonsterBase : MonoBehaviour
         Battle.instance.Attacked(currentAttackPoint);
     }
 
-    public void Attacked(int damage)
+    virtual public void Attacked(int damage)
     {
-        currentHp -= damage;
-        if (currentHp <= 0)
-        {
-            currentHp = 0;
-            Battle.instance.EndBattle();
-        }
-    }
+		int realDamage = (damage - currentArmor);
+		if (realDamage < 0)
+			realDamage = 0;
+
+		currentHp -= realDamage;
+		if (currentHp <= 0)
+		{
+			currentHp = 0;
+			Battle.instance.EndBattle();
+		}
+	}
 }

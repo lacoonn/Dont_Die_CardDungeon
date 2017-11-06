@@ -22,6 +22,7 @@ public class Poison : ConditionBase {
             monsterBase.currentHp = 0;
             Battle.instance.EndBattle();
         }
+		leftTurn--;
     }
 
     override public void ApplyCondition(Battle battle)
@@ -32,5 +33,6 @@ public class Poison : ConditionBase {
             battle.currentHp = 0;
             Battle.instance.EndBattle();
         }
+		leftTurn--;
     }
 }

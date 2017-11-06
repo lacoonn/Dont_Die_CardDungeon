@@ -18,7 +18,7 @@ public class GlobalDataManager : MonoBehaviour
 
 	public AllCardList allCardList;
 
-    public SaveData saveData;
+	public SaveData saveData;
 
 
     void Awake()
@@ -33,8 +33,8 @@ public class GlobalDataManager : MonoBehaviour
 
         allCardList = new AllCardList();
 
-        // Read savedata or init saveData variable
-        if (File.Exists("savedata.xml"))
+		// Read savedata or init saveData variable
+		if (File.Exists("savedata.xml"))
         {
             Debug.Log("Find save data");
             FileStream fileStream = new FileStream("savedata.xml", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);

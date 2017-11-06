@@ -7,6 +7,7 @@ public class AllCardList
 	public List<string> knightCardList = new List<string>();
 	public List<string> wizardCardList = new List<string>();
 	public List<string> priestCardList = new List<string>();
+	public List<string> monsterList = new List<string>();
 
 	public AllCardList()
 	{
@@ -24,11 +25,11 @@ public class AllCardList
 		priestCardList.Add("BeginnerPriest");
 		priestCardList.Add("HealingPriest");
 		priestCardList.Add("EncouragementPriest");
-		Debug.Log("AllCardList");
-	}
 
-	private void Start()
-	{
-		
+		// Monsters
+		monsterList.Add("Goblin");
+		monsterList.Add("Orc");
+		monsterList.Add("Golem");
+		monsterList.Add("Dragon");
 	}
 }

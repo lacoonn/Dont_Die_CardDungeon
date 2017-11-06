@@ -6,8 +6,10 @@ public class EncouragementPriest : CardBase
 {
     new private void Awake()
     {
-        // 합계 30
-        baseAttackPoint = 16;
+		cardName = "응원의 요정";
+		description = "필드의 모든 카드의 공격력을 1.2배 증가시킨다.";
+		// 합계 30
+		baseAttackPoint = 16;
         baseHealPoint = 10;
         baseHp = 40;
     }

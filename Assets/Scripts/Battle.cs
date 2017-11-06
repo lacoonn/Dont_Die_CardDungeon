@@ -70,8 +70,10 @@ public class Battle : MonoBehaviour {
 		// 게임스테이트 초기화
 		gameState = GameState.Default;
 
-        // 몬스터 초기화
-        monster = Instantiate(Resources.Load("Prefabs/BaseMonster") as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+		// 몬스터 초기화
+		int randomMonsterNumber = Random.Range(0, GlobalDataManager.instance.allCardList.monsterList.Count);
+		string randomMonsterName = GlobalDataManager.instance.allCardList.monsterList[randomMonsterNumber];
+		monster = Instantiate(Resources.Load("Prefabs/Monster/" + randomMonsterName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         monster.transform.position = monsterPos.position;
 		monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;
 
@@ -154,7 +156,13 @@ public class Battle : MonoBehaviour {
         combinationText.text = combination.ToString();
     }
 
-    public void AddHistory(CardBase a, MonsterBase b)
+	private void OnGUI()
+	{
+		string textFieldString = "text field";
+		textFieldString = GUI.TextArea(new Rect(0, 0, 100, 30), textFieldString);
+	}
+
+	public void AddHistory(CardBase a, MonsterBase b)
     {
         Hashtable hash = new Hashtable();
 
@@ -625,10 +633,12 @@ public class Battle : MonoBehaviour {
 		for (int i = 0; i < fieldCards.Length; i++)
 		{
 			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
-			yield return new WaitForSeconds(0.1f);
+			while (gameState != GameState.DrawEnd)
+				yield return new WaitForSeconds(0.1f);
 		}
 
-		while (gameState == GameState.Drawing)
+		//while (gameState == GameState.Drawing || gameState == GameState.Shuffling)
+		while (gameState != GameState.DrawEnd)
 			yield return new WaitForSeconds(0.1f);
 
 		// 플레이어 체력, 몬스터 체력, 공격력, 방어력 등 다시 계산
@@ -651,6 +661,8 @@ public class Battle : MonoBehaviour {
 
     public void UpdateCondition(ConditionBase.ApplicationTime currentTime)
 	{
+		List<ConditionBase> conditionToBeDeleted = new List<ConditionBase>();
+
         foreach(ConditionBase conditionItem in conditionList)
         {
             if (conditionItem.applicationTime == currentTime)
@@ -666,10 +678,15 @@ public class Battle : MonoBehaviour {
 
                 if (conditionItem.leftTurn <= 0)
                 {
-                    conditionList.Remove(conditionItem);
+					conditionToBeDeleted.Add(conditionItem);
                 }
             }
         }
+
+		foreach(ConditionBase conditionItem in conditionToBeDeleted)
+		{
+			conditionList.Remove(conditionItem);
+		}
 	}
 
     public void EndBattle()

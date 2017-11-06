@@ -33,13 +33,13 @@ public class RewardManager : MonoBehaviour {
 		selectedCurrentCardIndex = -1;
 
         // Get randomized new 3 cards
-        int randomKnightIndex = Random.Range(1, GlobalDataManager.instance.allCardList.knightCardList.Count);
+        int randomKnightIndex = Random.Range(0, GlobalDataManager.instance.allCardList.knightCardList.Count);
         randomKnightString = GlobalDataManager.instance.allCardList.knightCardList[randomKnightIndex];
 
-        int randomWizardIndex = Random.Range(1, GlobalDataManager.instance.allCardList.wizardCardList.Count);
+        int randomWizardIndex = Random.Range(0, GlobalDataManager.instance.allCardList.wizardCardList.Count);
         randomWizardString = GlobalDataManager.instance.allCardList.wizardCardList[randomWizardIndex];
 
-        int randomPriestIndex = Random.Range(1, GlobalDataManager.instance.allCardList.priestCardList.Count);
+        int randomPriestIndex = Random.Range(0, GlobalDataManager.instance.allCardList.priestCardList.Count);
         randomPriestString = GlobalDataManager.instance.allCardList.priestCardList[randomPriestIndex];
 
         // Load card data from prefabs

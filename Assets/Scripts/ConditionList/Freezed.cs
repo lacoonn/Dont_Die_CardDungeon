@@ -6,6 +6,6 @@ public class Freezed : ConditionBase {
 
     override public void ApplyCondition(MonsterBase monsterBase)
     {
-        
+		monsterBase.canWork = false;
     }
 }

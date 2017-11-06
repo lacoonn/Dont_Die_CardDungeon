@@ -4,43 +4,43 @@ using UnityEngine;
 
 [System.Serializable]
 public class CardBase : MonoBehaviour {
-    // 각인
-    public enum Seal { J, Q, K };
-    public Seal seal;
-    
-    // 직업
-    public enum Job { Knight, Wizard, Priest };
-    public Job job;
-    
-    // 상태
-    public enum Status { inField, inHand, inDeck, inTomb };
+	// 각인
+	public enum Seal { J, Q, K };
+	public Seal seal;
 
-    // 카드 활성화
-    public bool isActive = false;
+	// 직업
+	public enum Job { Knight, Wizard, Priest };
+	public Job job;
 
-    public Status status = Status.inDeck;
+	// 상태
+	public enum Status { inField, inHand, inDeck, inTomb };
 
-    // 카드가 속한 상태 배열에서 몇 번째에 있는지 저장하는 변수
-    public int index = 0;
+	// 카드 활성화
+	public bool isActive = false;
 
-    // 카드 이름 및 설명
-    public string cardName;
+	public Status status = Status.inDeck;
+
+	// 카드가 속한 상태 배열에서 몇 번째에 있는지 저장하는 변수
+	public int index = 0;
+
+	// 카드 이름 및 설명
+	public string cardName;
 	public string description;
 
-    // 카드 레벨
-    public int level;
+	// 카드 레벨
+	public int level;
 
-    // 공격 후 카드 능력치 초기화에 사용되는 변수
-    public int baseAttackPoint;
-    public int baseHealPoint;
-    public int baseHp;
+	// 공격 후 카드 능력치 초기화에 사용되는 변수
+	public int baseAttackPoint;
+	public int baseHealPoint;
+	public int baseHp;
 
-    // 실제 적용되는 카드 능력치
-    public int attackPoint;
+	// 실제 적용되는 카드 능력치
+	public int attackPoint;
 	public int healPoint;
-    public int hp;
+	public int hp;
 
-    // 텍스트 매쉬
+	// 텍스트 매쉬
 	public TextMesh nameText;
 	public TextMesh descriptionText;
 	public TextMesh attackText;
@@ -48,15 +48,13 @@ public class CardBase : MonoBehaviour {
 	public TextMesh jobText;
 	public TextMesh sealText;
 
-    // 카드의 위치가 수렴하는 장소(카드가 항상 이 장소로 이동하기 위해 움직임)
+	// 카드의 위치가 수렴하는 장소(카드가 항상 이 장소로 이동하기 위해 움직임)
 	public Vector3 newPos;
 
 	float distanceToScreen;
 
-    // 카드가 선택(터치)되어있는지 판별
+	// 카드가 선택(터치)되어있는지 판별
 	bool Selected = false;
-
-    public delegate void CustomAction();
 
 	public void Awake()
 	{
@@ -64,25 +62,25 @@ public class CardBase : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	public void Start ()
-    {
-        distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
-        // set seal textmesh
-        if (seal == Seal.J)
-            sealText.text = "J";
-        else if (seal == Seal.Q)
-            sealText.text = "Q";
-        else
-            sealText.text = "K";
+	public void Start()
+	{
+		distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
+		// set seal textmesh
+		if (seal == Seal.J)
+			sealText.text = "J";
+		else if (seal == Seal.Q)
+			sealText.text = "Q";
+		else
+			sealText.text = "K";
 
-        
-    }
 
-    public void Update()
-    {
-        attackText.text = attackPoint.ToString();
-        healText.text = healPoint.ToString();
-    }
+	}
+
+	public void Update()
+	{
+		attackText.text = attackPoint.ToString();
+		healText.text = healPoint.ToString();
+	}
 
 	public void FixedUpdate()
 	{
@@ -97,7 +95,7 @@ public class CardBase : MonoBehaviour {
 					{
 						Debug.Log("One card attack end");
 						//Battle.instance.gameState = Battle.GameState.CardAttackEnd;
-						AttackMonster(Battle.instance.monster, null);
+						AttackMonster(Battle.instance.monster);
 						Battle.instance.gameState = Battle.GameState.CardAttackFinish;
 					}
 					else
@@ -106,10 +104,10 @@ public class CardBase : MonoBehaviour {
 					}
 				}
 			}
-            else if (Battle.instance.gameState == Battle.GameState.CardAttackFinish)
-            {
+			else if (Battle.instance.gameState == Battle.GameState.CardAttackFinish)
+			{
 
-            }
+			}
 			else
 			{
 				// 카드가 선택된 상태가 아니라면 newPos로 이동하려는 성질을 가진다.
@@ -132,8 +130,18 @@ public class CardBase : MonoBehaviour {
 		{
 			transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0.0f, 180.0f, 0.0f), Time.deltaTime * 3);
 		}
-			
-    }
+
+	}
+
+	private void OnGUI()
+	{
+		if (Selected == true)
+		{
+			GUI.skin.textArea.wordWrap = true;
+			string textAreaString = cardName + "\n" + description;
+			GUI.TextArea(new Rect(0, 200, 300, 50), textAreaString);
+		}
+	}
 
 	void OnMouseDown()
 	{
@@ -145,7 +153,7 @@ public class CardBase : MonoBehaviour {
 			} 
 			else
 			{
-				if (status == Status.inHand && status == Status.inField)
+				if (status == Status.inHand || status == Status.inField)
 				{
 					Selected = true;
 				}
@@ -218,7 +226,7 @@ public class CardBase : MonoBehaviour {
 		}
     }
 
-	virtual public void AttackMonster(GameObject target, CustomAction action) // 몬스터를 공격!!
+	virtual public void AttackMonster(GameObject target) // 몬스터를 공격!!
     {
         Debug.Log("Card attack monster!");
         // Attack monster

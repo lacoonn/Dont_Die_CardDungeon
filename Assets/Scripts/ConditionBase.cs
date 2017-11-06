@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConditionBase : MonoBehaviour {
-
+public class ConditionBase
+{
     public enum ApplicationTarget { Player, Monster };
     public enum ApplicationTime { Always, TurnEnd };
 
     public ApplicationTarget applicationTarget;
     public ApplicationTime applicationTime;
     public int leftTurn;
-
-    private void Awake()
-    {
-        
-    }
 
     virtual public void ApplyCondition(Battle battle)
     {

@@ -6,8 +6,10 @@ public class HealingPriest : CardBase
 {
     new private void Awake()
     {
-        // 합계 30
-        baseAttackPoint = 5;
+		cardName = "회복의 요정";
+		description = "이 카드의 회복력을 50%만큼 증가시킨다.";
+		// 합계 30
+		baseAttackPoint = 5;
         baseHealPoint = 20;
         baseHp = 50;
     }
