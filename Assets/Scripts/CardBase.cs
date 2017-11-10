@@ -86,25 +86,25 @@ public class CardBase : MonoBehaviour {
 	{
 		if (isActive)
 		{
-			if (Battle.instance.gameState == Battle.GameState.CardAttackStart || Battle.instance.gameState == Battle.GameState.CardAttacking)
+			if (BattleManager.instance.gameState == BattleManager.GameState.CardAttackStart || BattleManager.instance.gameState == BattleManager.GameState.CardAttacking)
 			{
-				if (gameObject == Battle.instance.attackingCard)
+				if (gameObject == BattleManager.instance.attackingCard)
 				{
-					float distance = Vector3.Distance(transform.position, Battle.instance.monsterPos.position);
+					float distance = Vector3.Distance(transform.position, BattleManager.instance.monsterPos.position);
 					if (distance < 2)
 					{
 						Debug.Log("One card attack end");
-						//Battle.instance.gameState = Battle.GameState.CardAttackEnd;
-						AttackMonster(Battle.instance.monster);
-						Battle.instance.gameState = Battle.GameState.CardAttackFinish;
+						//BattleManager.instance.gameState = BattleManager.GameState.CardAttackEnd;
+						AttackMonster(BattleManager.instance.monster);
+						BattleManager.instance.gameState = BattleManager.GameState.CardAttackFinish;
 					}
 					else
 					{
-						transform.position = Vector3.Lerp(transform.position, Battle.instance.monsterPos.position, Time.deltaTime * 5);
+						transform.position = Vector3.Lerp(transform.position, BattleManager.instance.monsterPos.position, Time.deltaTime * 5);
 					}
 				}
 			}
-			else if (Battle.instance.gameState == Battle.GameState.CardAttackFinish)
+			else if (BattleManager.instance.gameState == BattleManager.GameState.CardAttackFinish)
 			{
 
 			}
@@ -145,9 +145,9 @@ public class CardBase : MonoBehaviour {
 
 	void OnMouseDown()
 	{
-		if (isActive) // Battle scene
+		if (isActive) // BattleManager scene
 		{
-			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+			if (BattleManager.instance.gameState == BattleManager.GameState.CardAttacking)
 			{
 				
 			} 
@@ -167,9 +167,9 @@ public class CardBase : MonoBehaviour {
 
 	void OnMouseUp()
 	{
-		if (isActive) // Battle scene
+		if (isActive) // BattleManager scene
 		{
-			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+			if (BattleManager.instance.gameState == BattleManager.GameState.CardAttacking)
 			{
 				
 			}
@@ -177,7 +177,7 @@ public class CardBase : MonoBehaviour {
 			{
 				Selected = false;
 				// 다른 카드와 겹쳐있으면 그 카드와 원래의 위치를 변경
-				Battle.instance.CheckPlace(gameObject);
+				BattleManager.instance.CheckPlace(gameObject);
 			}
 		}
 		else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
@@ -206,7 +206,7 @@ public class CardBase : MonoBehaviour {
 	{
 		if (isActive)
 		{
-			if (Battle.instance.gameState == Battle.GameState.CardAttacking)
+			if (BattleManager.instance.gameState == BattleManager.GameState.CardAttacking)
 			{
 				
 			}
@@ -233,10 +233,10 @@ public class CardBase : MonoBehaviour {
         target.GetComponent<MonsterBase>().Attacked(attackPoint);
 
         // Heal player
-        Battle.instance.Healed(healPoint);
+        BattleManager.instance.player.Healed(healPoint);
 
         //action();
-        Battle.instance.AddHistory(this, target.GetComponent<MonsterBase>());
+        BattleManager.instance.AddHistory(this, target.GetComponent<MonsterBase>());
     }
 
 	virtual public void ApplyLeaderEffect()
@@ -250,7 +250,7 @@ public class CardBase : MonoBehaviour {
 		{
 			if (card.gameObject != null)
 			{
-                //Battle.instance.fieldCards.Remove(card.gameObject);
+                //BattleManager.instance.fieldCards.Remove(card.gameObject);
 
 				//BoardBehaviourScript.instance.PlaySound(BoardBehaviourScript.instance.cardDestroy);
 				Destroy(card.gameObject);

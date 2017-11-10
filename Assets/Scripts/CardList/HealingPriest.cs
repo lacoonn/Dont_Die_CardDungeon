@@ -16,7 +16,7 @@ public class HealingPriest : CardBase
 
 	public override void ApplyLeaderEffect()
 	{
-		foreach (GameObject gameObject in Battle.instance.fieldCards)
+		foreach (GameObject gameObject in BattleManager.instance.fieldCards)
 		{
 			// 필드의 모든 카드의 회복력을 1.5배 증가시킨다.
 			CardBase cardBase = gameObject.GetComponent<CardBase>();

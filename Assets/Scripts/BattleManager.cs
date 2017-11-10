@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Battle : MonoBehaviour {
-    // 배틀 인스턴스
-	public static Battle instance;
+public class BattleManager : MonoBehaviour {
+    // 인스턴스
+	public static BattleManager instance;
 
     // 조합 배율
     public int TRIPLE = 3; // Seal이 같은 카드가 세 장(3)
@@ -25,7 +25,8 @@ public class Battle : MonoBehaviour {
 	public Transform deckPos;
     public Transform tombPos;
 
-    // 게임 오브젝트 변수
+	// 게임 오브젝트 변수
+	public PlayerBase player;
     public GameObject monster;
     public GameObject[] fieldCards;
     public GameObject[] handCards;
@@ -34,10 +35,6 @@ public class Battle : MonoBehaviour {
 
     // private 오브젝트
     private GameObject leaderEffect;
-
-    // 체력 변수
-    public int currentHp;
-    public int maxHp;
     
     // 조합 배율 변수
     public float baseCombination = 1;
@@ -69,6 +66,9 @@ public class Battle : MonoBehaviour {
 
 		// 게임스테이트 초기화
 		gameState = GameState.Default;
+
+		// 플레이어 초기화
+		player = new PlayerBase();
 
 		// 몬스터 초기화
 		int randomMonsterNumber = Random.Range(0, GlobalDataManager.instance.allCardList.monsterList.Count);
@@ -114,16 +114,15 @@ public class Battle : MonoBehaviour {
 			cardBase.newPos.z += zPos++; // 덱의 카드들의 위치가 겹치지 않도록 한다.
 
 			// 플레이어 체력에 카드 체력 추가
-			maxHp += cardBase.hp;
-            Debug.Log(maxHp);
+			player.maxHp += cardBase.hp;
 
 			// 덱 카드에 오브젝트 할당
 			tombCards.Add(gameObject);
 		}
-		currentHp = maxHp;
+		player.currentHp = player.maxHp;
 
 		// 텍스트매쉬 초기화
-		healthText.text = currentHp.ToString();
+		healthText.text = player.currentHp.ToString();
 		combinationText.text = combination.ToString();
 	}
 
@@ -152,14 +151,12 @@ public class Battle : MonoBehaviour {
     void FixedUpdate()
     {
         // 텍스트매쉬 초기화
-        healthText.text = currentHp.ToString() + "/" + maxHp.ToString();
+        healthText.text = player.currentHp.ToString() + "/" + player.maxHp.ToString();
         combinationText.text = combination.ToString();
     }
 
 	private void OnGUI()
 	{
-		string textFieldString = "text field";
-		textFieldString = GUI.TextArea(new Rect(0, 0, 100, 30), textFieldString);
 	}
 
 	public void AddHistory(CardBase a, MonsterBase b)
@@ -369,10 +366,11 @@ public class Battle : MonoBehaviour {
         
         // 리더 효과 적용
         Vector3 tempVector = fieldPos [1].transform.position;
-        tempVector.z -= 10;
-        Instantiate(leaderEffect, tempVector, Quaternion.identity); // should instantiate after load resources
-		fieldCards [1].GetComponent<CardBase> ().ApplyLeaderEffect ();
+        tempVector.z = (float)(tempVector.z - 0.1);
+        Instantiate(leaderEffect, tempVector, Quaternion.identity); // 리더 효과 이펙트
+		fieldCards [1].GetComponent<CardBase> ().ApplyLeaderEffect (); // 가운데 카드 리더 효과 적용
 		yield return new WaitForSeconds(0.5f);
+		ApplyConditionList(ConditionBase.ApplicationTime.Always); // Always 상태이상 효과 즉시 적용
 
 		// 전투!!!
 		for (int i = 0; i < fieldCards.Length; i++)
@@ -590,28 +588,11 @@ public class Battle : MonoBehaviour {
         }
     }
 
-    public void Attacked(int damage)
-    {
-        currentHp -= damage;
-        if (currentHp <= 0)
-        {
-            currentHp = 0;
-            EndBattle();
-        }
-    }
-
-    public void Healed(int healPoint)
-    {
-        currentHp += healPoint;
-        if (currentHp > maxHp)
-            currentHp = maxHp;
-    }
-
     // 턴을 끝낼 때 필요한 필수동작
 	IEnumerator EndTurn()
 	{
         // 상태 이상 적용
-        UpdateCondition(ConditionBase.ApplicationTime.TurnEnd);
+        ApplyConditionList(ConditionBase.ApplicationTime.TurnEnd);
 
         // 몬스터 공격!
         if (monster.GetComponent<MonsterBase>().TryToAttack())
@@ -627,6 +608,7 @@ public class Battle : MonoBehaviour {
 		StartCoroutine(OnNewTurn());
 	}
 
+	// 새 턴에 해야 할 행동
     IEnumerator OnNewTurn()
     {
 		// 드로우!!!
@@ -641,8 +623,10 @@ public class Battle : MonoBehaviour {
 		while (gameState != GameState.DrawEnd)
 			yield return new WaitForSeconds(0.1f);
 
-		// 플레이어 체력, 몬스터 체력, 공격력, 방어력 등 다시 계산
-		//--------------------------
+		// 플레이어 다시 계산
+
+		// 몬스터 다시 계산
+		monster.GetComponent<MonsterBase>().ResetMonsterStatus();
 
 		// 카드 능력치 다시 계산
 		foreach (GameObject gameObject in fieldCards)
@@ -656,10 +640,11 @@ public class Battle : MonoBehaviour {
 		UpdateCombination();
 
         // 상태이상 적용
-        UpdateCondition(ConditionBase.ApplicationTime.Always);
+        ApplyConditionList(ConditionBase.ApplicationTime.Always);
     }
 
-    public void UpdateCondition(ConditionBase.ApplicationTime currentTime)
+	// 상태효과 리스트 적용
+    public void ApplyConditionList(ConditionBase.ApplicationTime currentTime)
 	{
 		List<ConditionBase> conditionToBeDeleted = new List<ConditionBase>();
 
@@ -669,7 +654,7 @@ public class Battle : MonoBehaviour {
             {
                 if (conditionItem.applicationTarget == ConditionBase.ApplicationTarget.Player)
                 {
-                    conditionItem.ApplyCondition(Battle.instance);
+                    conditionItem.ApplyCondition(instance);
                 }
                 else if (conditionItem.applicationTarget == ConditionBase.ApplicationTarget.Monster)
                 {
@@ -692,7 +677,7 @@ public class Battle : MonoBehaviour {
     public void EndBattle()
     {
         //Time.timeScale = 0;
-        if (currentHp <= 0) // Lose
+        if (player.currentHp <= 0) // Lose
         {
             GlobalDataManager.instance.ChangeSceneToMenu();
         }

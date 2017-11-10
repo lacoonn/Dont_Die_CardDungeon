@@ -20,18 +20,18 @@ public class Poison : ConditionBase {
         if (monsterBase.currentHp <= 0)
         {
             monsterBase.currentHp = 0;
-            Battle.instance.EndBattle();
+            BattleManager.instance.EndBattle();
         }
 		leftTurn--;
     }
 
-    override public void ApplyCondition(Battle battle)
+    override public void ApplyCondition(BattleManager battleManager)
     {
-        battle.currentHp -= damage;
-        if (battle.currentHp <= 0)
+        battleManager.player.currentHp -= damage;
+        if (battleManager.player.currentHp <= 0)
         {
-            battle.currentHp = 0;
-            Battle.instance.EndBattle();
+            battleManager.player.currentHp = 0;
+            BattleManager.instance.EndBattle();
         }
 		leftTurn--;
     }

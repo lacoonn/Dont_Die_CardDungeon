@@ -11,7 +11,7 @@ public class ConditionBase
     public ApplicationTime applicationTime;
     public int leftTurn;
 
-    virtual public void ApplyCondition(Battle battle)
+    virtual public void ApplyCondition(BattleManager battleManager)
     {
 
     }

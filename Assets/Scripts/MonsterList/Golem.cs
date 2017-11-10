@@ -9,7 +9,7 @@ public class Golem : MonsterBase
 		monsterName = "골렘";
 		description = "";
 		baseMaxHp = 1000;
-		baseAttackPoint = 100;
+		baseAttackPoint = 450; // 턴당 150
 		baseArmor = 50;
 		attackTurnInterval = 3;
 	}

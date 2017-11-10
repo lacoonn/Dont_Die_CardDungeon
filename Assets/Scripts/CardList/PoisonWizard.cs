@@ -16,6 +16,6 @@ public class PoisonWizard : CardBase
 
 	public override void ApplyLeaderEffect()
 	{
-		Battle.instance.conditionList.Add(new Poison(ConditionBase.ApplicationTarget.Monster, 3, (int)(attackPoint * 0.3)));
+		BattleManager.instance.conditionList.Add(new Poison(ConditionBase.ApplicationTarget.Monster, 3, (int)(attackPoint * 0.3)));
 	}
 }

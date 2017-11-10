@@ -7,8 +7,6 @@ public class MenuManager : MonoBehaviour {
 	public void Awake()
 	{
 		//GlobalDataManager.instance.scene = GlobalDataManager.Scene.Menu; // 현재 씬을 메뉴로 설정
-
-
 	}
 
 	// Use this for initialization
@@ -25,7 +23,9 @@ public class MenuManager : MonoBehaviour {
     {
         GlobalDataManager.instance.saveData = null;
         GlobalDataManager.instance.saveData = new SaveData();
-        GlobalDataManager.instance.ChangeSceneToBattle();
+		GlobalDataManager.instance.saveData.InitSaveData();
+
+		GlobalDataManager.instance.ChangeSceneToBattle();
     }
 
     public void SelectExistingGameButton()

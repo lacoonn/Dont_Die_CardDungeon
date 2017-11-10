@@ -9,7 +9,7 @@ public class Dragon : MonsterBase
 		monsterName = "드래곤";
 		description = "";
 		baseMaxHp = 4000;
-		baseAttackPoint = 200;
+		baseAttackPoint = 450; // 턴당 150
 		baseArmor = 20;
 		attackTurnInterval = 3;
 	}

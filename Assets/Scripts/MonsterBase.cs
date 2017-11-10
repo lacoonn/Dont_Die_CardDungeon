@@ -28,8 +28,11 @@ public class MonsterBase : MonoBehaviour
 
     public TextMesh healthText;
     public TextMesh turnLeftUntilAttackText;
+	public TextMesh armorText;
 
-    public Vector3 homePosition;
+	public Vector3 homePosition;
+
+	public int speed = 3;
 
 	public void Awake()
 	{
@@ -40,27 +43,54 @@ public class MonsterBase : MonoBehaviour
 	public void Start()
     {
         monsterAttackEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
-        // base -> current
-        maxHp = baseMaxHp;
-        currentHp = maxHp;
-        currentAttackPoint = baseAttackPoint;
-		currentArmor = baseArmor;
-        turnLeftUntilAttack = attackTurnInterval;
-        canWork = true;
+
+		// base -> current
+		maxHp = baseMaxHp;
+		currentHp = maxHp;
+		turnLeftUntilAttack = attackTurnInterval;
+
+		ResetMonsterStatus();
     }
 
     public void Update()
     {
-        healthText.text = currentHp.ToString() + "/" + maxHp.ToString();
-    }
+		if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Battle)
+		{
+			healthText.text = currentHp.ToString() + "/" + maxHp.ToString();
+			turnLeftUntilAttackText.text = turnLeftUntilAttack.ToString();
+			armorText.text = currentArmor.ToString();
+		}
+	}
 
     public void FixedUpdate()
     {
-        if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Battle)
-            transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
+		if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Battle)
+		{
+			if (BattleManager.instance.gameState == BattleManager.GameState.MonsterAttacking)
+			{
+				float step = speed * Time.deltaTime;
+				Vector3 target = BattleManager.instance.monsterPos.position;
+				target.y -= 1;
+				transform.position = Vector3.Lerp(transform.position, target, step);
+				//transform.position = Vector3.MoveTowards(transform.position, target, step);
+				speed += 2;
+			}
+			else
+			{
+				transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
+			}
+			
+		}
     }
 
-    public bool TryToAttack()
+	public virtual void ResetMonsterStatus()
+	{
+		currentAttackPoint = baseAttackPoint;
+		currentArmor = baseArmor;
+		canWork = true;
+	}
+
+	public bool TryToAttack()
     {
         if(turnLeftUntilAttack <= 1)
         {
@@ -70,7 +100,6 @@ public class MonsterBase : MonoBehaviour
             }
             else
             {
-                canWork = true;
                 return false;
             }
         }
@@ -83,7 +112,6 @@ public class MonsterBase : MonoBehaviour
             }
             else
             {
-                canWork = true;
                 return false;
             }
         }
@@ -92,13 +120,19 @@ public class MonsterBase : MonoBehaviour
     public IEnumerator AttackPlayer()
     {
         Debug.Log("Monster attack player!");
+
+		BattleManager.instance.gameState = BattleManager.GameState.MonsterAttacking;
+
         Vector3 tempVector = transform.position;
         tempVector.z -= (float)0.1;
         Instantiate(monsterAttackEffect, tempVector, Quaternion.identity);
         yield return new WaitForSeconds(0.5f);
         turnLeftUntilAttack = attackTurnInterval;
-        Battle.instance.Attacked(currentAttackPoint);
-    }
+        BattleManager.instance.player.Attacked(currentAttackPoint);
+
+		BattleManager.instance.gameState = BattleManager.GameState.Default;
+		speed = 3;
+	}
 
     virtual public void Attacked(int damage)
     {
@@ -110,7 +144,7 @@ public class MonsterBase : MonoBehaviour
 		if (currentHp <= 0)
 		{
 			currentHp = 0;
-			Battle.instance.EndBattle();
+			BattleManager.instance.EndBattle();
 		}
 	}
 }

@@ -16,6 +16,6 @@ public class ArmorBreaker : CardBase
 
 	public override void ApplyLeaderEffect()
 	{
-		Battle.instance.conditionList.Add(new ArmorDown());
+		BattleManager.instance.conditionList.Add(new ArmorDown(ConditionBase.ApplicationTarget.Monster, 2));
 	}
 }

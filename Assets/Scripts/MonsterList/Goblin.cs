@@ -9,7 +9,7 @@ public class Goblin : MonsterBase
 		monsterName = "고블린";
 		description = "";
 		baseMaxHp = 500;
-		baseAttackPoint = 50;
+		baseAttackPoint = 100; // 턴당 100
 		baseArmor = 0;
 		attackTurnInterval = 1;
 	}

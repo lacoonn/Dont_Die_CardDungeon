@@ -9,7 +9,7 @@ public class Orc : MonsterBase
 		monsterName = "오크";
 		description = "";
 		baseMaxHp = 1000;
-		baseAttackPoint = 200;
+		baseAttackPoint = 250; // 턴당 125
 		baseArmor = 0;
 		attackTurnInterval = 2;
 	}

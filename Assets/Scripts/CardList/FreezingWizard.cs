@@ -16,6 +16,6 @@ public class FreezingWizard : CardBase
 
 	public override void ApplyLeaderEffect()
 	{
-		Battle.instance.conditionList.Add(new Freezed());
+		BattleManager.instance.conditionList.Add(new Freezed(ConditionBase.ApplicationTarget.Monster, 1));
 	}
 }
