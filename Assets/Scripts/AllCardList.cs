@@ -9,6 +9,13 @@ public class AllCardList
 	public List<string> priestCardList = new List<string>();
 	public List<string> monsterList = new List<string>();
 
+	// 1층 몬스터
+	public List<string> FirstFloorMonsterList = new List<string>();
+	// 2층 몬스터
+	public List<string> SecondFloorMonsterList = new List<string>();
+	// 3층 몬스터
+	public List<string> ThirdFloorMonsterList = new List<string>();
+
 	public AllCardList()
 	{
 		// Knight Cards
@@ -31,5 +38,10 @@ public class AllCardList
 		monsterList.Add("Orc");
 		monsterList.Add("Golem");
 		monsterList.Add("Dragon");
+
+		// 1층 몬스터
+		FirstFloorMonsterList.Add("Goblin");
+		FirstFloorMonsterList.Add("GoblinAssassin");
+		FirstFloorMonsterList.Add("GoblinShaman");
 	}
 }

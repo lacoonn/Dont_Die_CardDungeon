@@ -17,6 +17,6 @@ public class BeginnerPriest : CardBase
     public override void ApplyLeaderEffect()
     {
         attackPoint = (int)(attackPoint * 1.2);
-        healPoint *= (int)(healPoint * 1.2);
+        healPoint = (int)(healPoint * 1.2);
     }
 }

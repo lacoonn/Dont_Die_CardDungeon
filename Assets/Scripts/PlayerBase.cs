@@ -4,19 +4,12 @@ using UnityEngine;
 
 public class PlayerBase
 {
+	// 플레이어 이름 및 설명
+	public string name;
+	public string description;
 	// 체력 변수
 	public int currentHp;
 	public int maxHp;
-
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
 	public virtual void Attacked(int damage)
 	{

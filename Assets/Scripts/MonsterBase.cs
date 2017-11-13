@@ -6,7 +6,7 @@ using UnityEngine;
 public class MonsterBase : MonoBehaviour
 {
 	// 필요한 리소스
-	private GameObject monsterAttackEffect;
+	protected GameObject monsterSkillEffect;
 
     public string monsterName;
     public string description;
@@ -42,7 +42,7 @@ public class MonsterBase : MonoBehaviour
 	// Use this for initialization
 	public void Start()
     {
-        monsterAttackEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
+        monsterSkillEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
 
 		// base -> current
 		maxHp = baseMaxHp;
@@ -90,7 +90,7 @@ public class MonsterBase : MonoBehaviour
 		canWork = true;
 	}
 
-	public bool TryToAttack()
+	public virtual bool TryToAttack()
     {
         if(turnLeftUntilAttack <= 1)
         {
@@ -117,7 +117,7 @@ public class MonsterBase : MonoBehaviour
         }
     }
 
-    public IEnumerator AttackPlayer()
+    public virtual IEnumerator AttackPlayer()
     {
         Debug.Log("Monster attack player!");
 
@@ -125,9 +125,10 @@ public class MonsterBase : MonoBehaviour
 
         Vector3 tempVector = transform.position;
         tempVector.z -= (float)0.1;
-        Instantiate(monsterAttackEffect, tempVector, Quaternion.identity);
+
         yield return new WaitForSeconds(0.5f);
-        turnLeftUntilAttack = attackTurnInterval;
+
+		turnLeftUntilAttack = attackTurnInterval;
         BattleManager.instance.player.Attacked(currentAttackPoint);
 
 		BattleManager.instance.gameState = BattleManager.GameState.Default;

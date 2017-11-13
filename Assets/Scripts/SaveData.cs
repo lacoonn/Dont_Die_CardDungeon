@@ -16,14 +16,17 @@ public class SaveData
             level = _level;
         }
     }
+	public enum PlayerName { Deprived };
 
     // variables
     public int stageNumber;
+	public PlayerName playerName;
     public List<CardData> currentCardList;
 
     public void InitSaveData()
     {
         stageNumber = 1;
+		playerName = PlayerName.Deprived;
         currentCardList = new List<CardData>();
 
         // 현재 카드가 아무것도 없을 경우 기본 세팅으로 설정

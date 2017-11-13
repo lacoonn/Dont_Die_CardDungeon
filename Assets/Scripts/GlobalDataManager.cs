@@ -66,6 +66,27 @@ public class GlobalDataManager : MonoBehaviour
 		instance.isInit = true;
 	}
 
+	public string GetStageMonsterName()
+	{
+		int stageNumber = saveData.stageNumber;
+
+		if (1 <= stageNumber && stageNumber <= 9)
+		{
+			int randomNumber = Random.Range(0, allCardList.FirstFloorMonsterList.Count - 1);
+			return allCardList.FirstFloorMonsterList[randomNumber];
+		}
+		else if (9 <= stageNumber && stageNumber <= 9)
+		{
+			int randomNumber = allCardList.FirstFloorMonsterList.Count - 1;
+			return allCardList.FirstFloorMonsterList[randomNumber];
+		}
+		else // 에러
+		{
+			Debug.Log("Get Stage Monster Name Error! StageNumber : " + stageNumber);
+			return null;
+		}
+	}
+
     private void OnApplicationQuit()
     {
         SaveDataToXml();

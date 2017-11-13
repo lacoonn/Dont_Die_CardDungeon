@@ -68,11 +68,12 @@ public class BattleManager : MonoBehaviour {
 		gameState = GameState.Default;
 
 		// 플레이어 초기화
-		player = new PlayerBase();
+		InitializePlayer();
 
 		// 몬스터 초기화
-		int randomMonsterNumber = Random.Range(0, GlobalDataManager.instance.allCardList.monsterList.Count);
-		string randomMonsterName = GlobalDataManager.instance.allCardList.monsterList[randomMonsterNumber];
+			//int randomMonsterNumber = Random.Range(0, GlobalDataManager.instance.allCardList.monsterList.Count);
+			//string randomMonsterName = GlobalDataManager.instance.allCardList.monsterList[randomMonsterNumber];
+		string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
 		monster = Instantiate(Resources.Load("Prefabs/Monster/" + randomMonsterName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         monster.transform.position = monsterPos.position;
 		monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;
@@ -157,6 +158,30 @@ public class BattleManager : MonoBehaviour {
 
 	private void OnGUI()
 	{
+	}
+
+	private void InitializePlayer()
+	{
+		if (GlobalDataManager.instance.saveData.playerName == SaveData.PlayerName.Deprived)
+		{
+			player = new Deprived();
+			Debug.Log("못 가진 자");
+		}
+		else
+		{
+			player = new PlayerBase();
+			Debug.Log("플레이어 베이스");
+		}
+	}
+
+	void SetCardStatusAsLevel(GameObject cardObject, int level)
+	{
+		CardBase cardBase = cardObject.GetComponent<CardBase>();
+		double ratio = (1 + (level - 1) * 0.1);
+		cardBase.level = level;
+		cardBase.baseAttackPoint = (int)(cardBase.baseAttackPoint * ratio);
+		cardBase.baseHealPoint = (int)(cardBase.baseHealPoint * ratio);
+		cardBase.baseHp = (int)(cardBase.baseHp * ratio);
 	}
 
 	public void AddHistory(CardBase a, MonsterBase b)

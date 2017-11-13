@@ -16,6 +16,6 @@ public class BeginnerKnight : CardBase {
     override public void ApplyLeaderEffect()
 	{
         attackPoint = (int)(attackPoint * 1.2);
-        healPoint *= (int)(healPoint * 1.2);
+        healPoint = (int)(healPoint * 1.2);
     }
 }

@@ -42,20 +42,25 @@ public class RewardManager : MonoBehaviour {
         int randomPriestIndex = Random.Range(0, GlobalDataManager.instance.allCardList.priestCardList.Count);
         randomPriestString = GlobalDataManager.instance.allCardList.priestCardList[randomPriestIndex];
 
-        // Load card data from prefabs
-        newCards[0] = Instantiate(Resources.Load("Prefabs/Card/" + randomKnightString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+		// Load card data from prefabs
+		int stageNumber = GlobalDataManager.instance.saveData.stageNumber;
+
+		newCards[0] = Instantiate(Resources.Load("Prefabs/Card/" + randomKnightString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
         newCards[0].transform.position = newCardPositions[0].position;
-        newCardBorders[0].transform.position = newCardPositions[0].position;
+		SetCardStatusAsLevel(newCards[0], stageNumber);
+		newCardBorders[0].transform.position = newCardPositions[0].position;
         newCardBorders[0].SetActive(false);
 
         newCards[1] = Instantiate(Resources.Load("Prefabs/Card/" + randomWizardString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         newCards[1].transform.position = newCardPositions[1].position;
-        newCardBorders[1].transform.position = newCardPositions[1].position;
+		SetCardStatusAsLevel(newCards[1], stageNumber);
+		newCardBorders[1].transform.position = newCardPositions[1].position;
         newCardBorders[1].SetActive(false);
 
         newCards[2] = Instantiate(Resources.Load("Prefabs/Card/" + randomPriestString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         newCards[2].transform.position = newCardPositions[2].position;
-        newCardBorders[2].transform.position = newCardPositions[2].position;
+		SetCardStatusAsLevel(newCards[2], stageNumber);
+		newCardBorders[2].transform.position = newCardPositions[2].position;
         newCardBorders[2].SetActive(false);
         for (int i = 0; i < 9; i++) // current cards
         {
@@ -68,7 +73,10 @@ public class RewardManager : MonoBehaviour {
                 currentCards[i].GetComponent<CardBase>().seal = CardBase.Seal.Q;
             if (i % 3 == 2)
                 currentCards[i].GetComponent<CardBase>().seal = CardBase.Seal.K;
-        }
+
+			
+			SetCardStatusAsLevel(currentCards[i], cardData.level);
+		}
 
         // Init selectedCards NULL
         for (int i = 0; i < 3; i++)
@@ -94,6 +102,19 @@ public class RewardManager : MonoBehaviour {
 	void Update ()
     {
 		
+	}
+
+	void SetCardStatusAsLevel(GameObject cardObject, int level)
+	{
+		CardBase cardBase = cardObject.GetComponent<CardBase>();
+		double ratio = (1 + (level - 1) * 0.1);
+		cardBase.level = level;
+		cardBase.baseAttackPoint = (int)(cardBase.baseAttackPoint * ratio);
+		cardBase.baseHealPoint = (int)(cardBase.baseHealPoint * ratio);
+		cardBase.baseHp = (int)(cardBase.baseHp * ratio);
+		cardBase.attackPoint = cardBase.baseAttackPoint;
+		cardBase.healPoint = cardBase.baseHealPoint;
+		cardBase.hp = cardBase.baseHp;
 	}
 
 	public IEnumerator StartRewardScene()
