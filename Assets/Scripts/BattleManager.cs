@@ -71,9 +71,8 @@ public class BattleManager : MonoBehaviour {
 		InitializePlayer();
 
 		// 몬스터 초기화
-			//int randomMonsterNumber = Random.Range(0, GlobalDataManager.instance.allCardList.monsterList.Count);
-			//string randomMonsterName = GlobalDataManager.instance.allCardList.monsterList[randomMonsterNumber];
-		string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
+		//string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
+		string randomMonsterName = "SkeletonSoldier"; // 테스트용
 		monster = Instantiate(Resources.Load("Prefabs/Monster/" + randomMonsterName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         monster.transform.position = monsterPos.position;
 		monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;

@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ArmorDown : ConditionBase {
+public class ArmorDown : ConditionBase
+{
 	public ArmorDown(ApplicationTarget _applicationTarget, int _leftTurn)
 	{
 		applicationTarget = _applicationTarget;

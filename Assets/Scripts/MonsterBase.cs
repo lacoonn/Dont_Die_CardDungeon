@@ -119,7 +119,7 @@ public class MonsterBase : MonoBehaviour
 
     public virtual IEnumerator AttackPlayer()
     {
-        Debug.Log("Monster attack player!");
+        Debug.Log(monsterName + " attack player!");
 
 		BattleManager.instance.gameState = BattleManager.GameState.MonsterAttacking;
 

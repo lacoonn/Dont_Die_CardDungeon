@@ -11,6 +11,6 @@ public class Goblin : MonsterBase
 		baseArmor = 0;
 		attackTurnInterval = 1;
 		monsterName = "고블린";
-		description = "공격력 " + baseAttackPoint + "\n별거 없는 몬스터입니다.";
+		description = "공격력 " + baseAttackPoint + "\n보잘 것 없는 고블린입니다.";
 	}
 }

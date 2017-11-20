@@ -43,5 +43,10 @@ public class AllCardList
 		FirstFloorMonsterList.Add("Goblin");
 		FirstFloorMonsterList.Add("GoblinAssassin");
 		FirstFloorMonsterList.Add("GoblinShaman");
+
+		//2층 몬스터
+		SecondFloorMonsterList.Add("SkeletonSoldier");
+		SecondFloorMonsterList.Add("SkeletonKnight");
+		SecondFloorMonsterList.Add("SkeletonReaper");
 	}
 }

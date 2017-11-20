@@ -22,6 +22,7 @@ public class GoblinShaman : MonsterBase {
 		Vector3 tempVector = transform.position;
 		tempVector.z -= (float)0.1;
 
+		// override part
 		int randomResult = Random.Range(1, 101);
 		if (1 <= randomResult && randomResult <= 50) // 피해 증가 스킬
 		{
@@ -35,7 +36,7 @@ public class GoblinShaman : MonsterBase {
 			yield return new WaitForSeconds(0.5f);
 			HealingSkill();
 		}
-
+		// override part end
 
 		turnLeftUntilAttack = attackTurnInterval;
 		BattleManager.instance.player.Attacked(currentAttackPoint);
