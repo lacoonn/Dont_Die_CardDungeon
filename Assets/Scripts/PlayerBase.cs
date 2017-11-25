@@ -17,7 +17,6 @@ public class PlayerBase
 		if (currentHp <= 0)
 		{
 			currentHp = 0;
-			BattleManager.instance.EndBattle();
 		}
 	}
 

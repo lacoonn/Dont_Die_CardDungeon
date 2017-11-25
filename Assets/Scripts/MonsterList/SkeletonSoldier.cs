@@ -9,7 +9,7 @@ public class SkeletonSoldier : MonsterBase
 	private new void Awake()
 	{
 		baseMaxHp = 500;
-		baseAttackPoint = 100; // 턴당 100
+		baseAttackPoint = 200; // 턴당 100
 		baseArmor = 0;
 		attackTurnInterval = 2;
 		monsterName = "해골 병사";

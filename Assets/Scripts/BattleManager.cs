@@ -37,8 +37,8 @@ public class BattleManager : MonoBehaviour {
     private GameObject leaderEffect;
     
     // 조합 배율 변수
-    public float baseCombination = 1;
-    public float combination = 1;
+    public int baseCombination = 1;
+    public int combination = 1;
 
     // 텍스트 매쉬
     public TextMesh stageNumberText;
@@ -73,6 +73,7 @@ public class BattleManager : MonoBehaviour {
 		// 몬스터 초기화
 		//string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
 		string randomMonsterName = "SkeletonSoldier"; // 테스트용
+
 		monster = Instantiate(Resources.Load("Prefabs/Monster/" + randomMonsterName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         monster.transform.position = monsterPos.position;
 		monster.GetComponent<MonsterBase>().homePosition = monsterPos.position;
@@ -157,6 +158,13 @@ public class BattleManager : MonoBehaviour {
 
 	private void OnGUI()
 	{
+		if(GUI.RepeatButton(new Rect(300, 0, 50, 50), "!"))
+		{
+			MonsterBase monsterScript = monster.GetComponent<MonsterBase>();
+			GUI.skin.textArea.wordWrap = true;
+			string textAreaString = monsterScript.monsterName + "\n" + monsterScript.description;
+			GUI.TextArea(new Rect(0, 100, 300, 100), textAreaString);
+		}
 	}
 
 	private void InitializePlayer()
@@ -405,7 +413,6 @@ public class BattleManager : MonoBehaviour {
 			while (gameState != GameState.CardAttackFinish) {
 				yield return new WaitForSeconds (0.1f);
 			}
-            //fieldCards[i].GetComponent<CardBase>().AttackMonster(monster, null);
 		}
         gameState = GameState.Default;
 
@@ -601,6 +608,7 @@ public class BattleManager : MonoBehaviour {
 
             cardBase.attackPoint = (int)(cardBase.baseAttackPoint * combination);
             cardBase.healPoint = (int)(cardBase.baseHealPoint * combination);
+			cardBase.UpdateSkillChance();
         }
         // 핸드의 카드에 조합 배율 제거
         for (int i = 0; i < handCards.Length; i++)
@@ -609,25 +617,33 @@ public class BattleManager : MonoBehaviour {
 
             cardBase.attackPoint = cardBase.baseAttackPoint;
             cardBase.healPoint = cardBase.baseHealPoint;
-        }
+			cardBase.UpdateSkillChance();
+		}
     }
 
     // 턴을 끝낼 때 필요한 필수동작
 	IEnumerator EndTurn()
 	{
-        // 상태 이상 적용
-        ApplyConditionList(ConditionBase.ApplicationTime.TurnEnd);
+		MonsterBase monsterScript = monster.GetComponent<MonsterBase>();
+		// 상태 이상 적용
+		ApplyConditionList(ConditionBase.ApplicationTime.TurnEnd);
 
         // 몬스터 공격!
-        if (monster.GetComponent<MonsterBase>().TryToAttack())
+        if (monsterScript.TryToAttack())
         {
             StartCoroutine(monster.GetComponent<MonsterBase>().AttackPlayer());
 
             yield return new WaitForSeconds(0.5f);
         }
 
-        // 턴 번호 증가
-        turnNumber += 1;
+		// 게임 종료 검사
+		if (monsterScript.currentHp <= 0 || player.currentHp <= 0)
+		{
+			EndBattle();
+		}
+
+		// 턴 번호 증가
+		turnNumber += 1;
 
 		StartCoroutine(OnNewTurn());
 	}

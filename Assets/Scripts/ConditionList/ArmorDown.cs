@@ -4,17 +4,19 @@ using UnityEngine;
 
 public class ArmorDown : ConditionBase
 {
-	public ArmorDown(ApplicationTarget _applicationTarget, int _leftTurn)
+	public int unit;
+
+	public ArmorDown(ApplicationTarget _applicationTarget, int _leftTurn, int _unit)
 	{
 		applicationTarget = _applicationTarget;
 		applicationTime = ApplicationTime.Always;
 		leftTurn = _leftTurn;
+		unit = _unit;
 	}
 
 	override public void ApplyCondition(MonsterBase monsterBase)
 	{
-		int armorDownValue = 30;
-		monsterBase.currentArmor -= armorDownValue;
+		monsterBase.currentArmor -= unit;
 		if (monsterBase.currentArmor < 0)
 			monsterBase.currentArmor = 0;
 		leftTurn--;

@@ -15,10 +15,14 @@ public class CardBase : MonoBehaviour {
 	// 상태
 	public enum Status { inField, inHand, inDeck, inTomb };
 
+	// 카드 공격 스테이트
+	public enum AttackState { None, Phase1, Phase2 };
+
 	// 카드 활성화
 	public bool isActive = false;
 
 	public Status status = Status.inDeck;
+	public AttackState attackState = AttackState.None;
 
 	// 카드가 속한 상태 배열에서 몇 번째에 있는지 저장하는 변수
 	public int index = 0;
@@ -50,6 +54,7 @@ public class CardBase : MonoBehaviour {
 
 	// 카드의 위치가 수렴하는 장소(카드가 항상 이 장소로 이동하기 위해 움직임)
 	public Vector3 newPos;
+	public Vector3 tempPos;
 
 	float distanceToScreen;
 
@@ -90,17 +95,38 @@ public class CardBase : MonoBehaviour {
 			{
 				if (gameObject == BattleManager.instance.attackingCard)
 				{
-					float distance = Vector3.Distance(transform.position, BattleManager.instance.monsterPos.position);
-					if (distance < 2)
+					if (attackState == AttackState.None)
 					{
-						Debug.Log("One card attack end");
-						//BattleManager.instance.gameState = BattleManager.GameState.CardAttackEnd;
-						AttackMonster(BattleManager.instance.monster);
-						BattleManager.instance.gameState = BattleManager.GameState.CardAttackFinish;
+						attackState = AttackState.Phase1;
 					}
-					else
+					else if (attackState == AttackState.Phase1)
 					{
-						transform.position = Vector3.Lerp(transform.position, BattleManager.instance.monsterPos.position, Time.deltaTime * 5);
+						float distance = Vector3.Distance(transform.position, BattleManager.instance.monsterPos.position);
+						if (distance < 2)
+						{
+							Debug.Log("One card phase1 end");
+							AttackMonster(BattleManager.instance.monster);
+							attackState = AttackState.Phase2;
+							//newPos = tempPos;
+						}
+						else
+						{
+							transform.position = Vector3.Lerp(transform.position, BattleManager.instance.monsterPos.position, Time.deltaTime * 5);
+						}
+					}
+					else if (attackState == AttackState.Phase2)
+					{
+						float distance = Vector3.Distance(transform.position, newPos);
+						if (distance < 1)
+						{
+							Debug.Log("One card phase2 end");
+							BattleManager.instance.gameState = BattleManager.GameState.CardAttackFinish;
+							attackState = AttackState.None;
+						}
+						else
+						{
+							transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 5);
+						}
 					}
 				}
 			}
@@ -226,7 +252,12 @@ public class CardBase : MonoBehaviour {
 		}
     }
 
-	virtual public void AttackMonster(GameObject target) // 몬스터를 공격!!
+	public virtual void UpdateSkillChance()
+	{
+
+	}
+
+	public virtual void AttackMonster(GameObject target) // 몬스터를 공격!!
     {
         Debug.Log("Card attack monster!");
         // Attack monster

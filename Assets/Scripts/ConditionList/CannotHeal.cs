@@ -23,5 +23,6 @@ public class CannotHeal : ConditionBase
 			CardBase cardBase = cardItem.GetComponent<CardBase>();
 			cardBase.healPoint = 0;
 		}
+		leftTurn--;
 	}
 }

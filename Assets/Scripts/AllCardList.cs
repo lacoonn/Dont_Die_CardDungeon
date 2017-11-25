@@ -22,30 +22,43 @@ public class AllCardList
 		knightCardList.Add("BeginnerKnight");
 		knightCardList.Add("Barbarian");
 		knightCardList.Add("ArmorBreaker");
+		knightCardList.Add("SpearKnight");
 
 		// Wizard Cards
 		wizardCardList.Add("BeginnerWizard");
 		wizardCardList.Add("FreezingWizard");
 		wizardCardList.Add("PoisonWizard");
+		knightCardList.Add("Sage");
 
 		// Priest Cards
 		priestCardList.Add("BeginnerPriest");
 		priestCardList.Add("HealingPriest");
 		priestCardList.Add("EncouragementPriest");
+		knightCardList.Add("Paladin");
 
 		// Monsters
 		monsterList.Add("Goblin");
+		monsterList.Add("GoblinAssassin");
+		monsterList.Add("GoblinShaman");
+		SecondFloorMonsterList.Add("SkeletonSoldier");
+		SecondFloorMonsterList.Add("SkeletonKnight");
+		SecondFloorMonsterList.Add("SkeletonReaper");
 		monsterList.Add("Orc");
 		monsterList.Add("Golem");
+
 		monsterList.Add("Dragon");
 
 		// 1층 몬스터
 		FirstFloorMonsterList.Add("Goblin");
+		FirstFloorMonsterList.Add("Orc");
+		FirstFloorMonsterList.Add("Golem");
 		FirstFloorMonsterList.Add("GoblinAssassin");
 		FirstFloorMonsterList.Add("GoblinShaman");
 
 		//2층 몬스터
 		SecondFloorMonsterList.Add("SkeletonSoldier");
+		FirstFloorMonsterList.Add("Orc");
+		FirstFloorMonsterList.Add("Golem");
 		SecondFloorMonsterList.Add("SkeletonKnight");
 		SecondFloorMonsterList.Add("SkeletonReaper");
 	}

@@ -4,13 +4,36 @@ using UnityEngine;
 
 public class Golem : MonsterBase
 {
-	new private void Awake()
+	public int debrisDamage = 30;
+	private new void Awake()
 	{
-		monsterName = "골렘";
-		description = "";
 		baseMaxHp = 1000;
-		baseAttackPoint = 450; // 턴당 150
+		baseAttackPoint = 600; // 턴당 150
 		baseArmor = 50;
-		attackTurnInterval = 3;
+		attackTurnInterval = 4;
+
+		// debrisDamage = *;
+
+		monsterName = "골렘";
+		description = "진흙으로 빚어진 골렘입니다. 피격 시 파편이 튀어 " + debrisDamage + "의 피해를 줍니다.";
+	}
+
+	public override void Attacked(int damage)
+	{
+		int realDamage = (damage - currentArmor);
+		if (realDamage < 0)
+			realDamage = 0;
+
+		BattleManager.instance.player.Attacked(debrisDamage);
+		// 이펙트
+		Vector3 tempVector = transform.position;
+		tempVector.z -= (float)0.1;
+		Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+
+		currentHp -= realDamage;
+		if (currentHp <= 0)
+		{
+			currentHp = 0;
+		}
 	}
 }

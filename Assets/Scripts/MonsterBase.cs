@@ -135,7 +135,7 @@ public class MonsterBase : MonoBehaviour
 		speed = 3;
 	}
 
-    virtual public void Attacked(int damage)
+    public virtual void Attacked(int damage)
     {
 		int realDamage = (damage - currentArmor);
 		if (realDamage < 0)
@@ -145,7 +145,6 @@ public class MonsterBase : MonoBehaviour
 		if (currentHp <= 0)
 		{
 			currentHp = 0;
-			BattleManager.instance.EndBattle();
 		}
 	}
 }

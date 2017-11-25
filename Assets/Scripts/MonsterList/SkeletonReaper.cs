@@ -6,8 +6,8 @@ public class SkeletonReaper : MonsterBase
 {
 	private new void Awake()
 	{
-		baseMaxHp = 500;
-		baseAttackPoint = 100; // 턴당 100
+		baseMaxHp = 2000;
+		baseAttackPoint = 300; // 턴당 150
 		baseArmor = 0;
 		attackTurnInterval = 2;
 		monsterName = "사신";
