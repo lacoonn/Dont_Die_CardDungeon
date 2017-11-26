@@ -27,7 +27,10 @@ public class RewardManager : MonoBehaviour {
 
 	void Awake()
 	{
-        instance = this;
+		Screen.sleepTimeout = SleepTimeout.NeverSleep;
+		Screen.SetResolution(1080, 1920, true);
+
+		instance = this;
 
         selectedNewCardIndex = -1;
 		selectedCurrentCardIndex = -1;

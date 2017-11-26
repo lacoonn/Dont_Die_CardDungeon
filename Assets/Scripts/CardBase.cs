@@ -61,8 +61,6 @@ public class CardBase : MonoBehaviour {
 	// 카드가 선택(터치)되어있는지 판별
 	bool Selected = false;
 
-	int speed = 3;
-
 	public void Awake()
 	{
 
@@ -169,8 +167,13 @@ public class CardBase : MonoBehaviour {
 		if (Selected == true)
 		{
 			GUI.skin.textArea.wordWrap = true;
+			GUI.skin.textArea.fontSize = Screen.width / 30;
+
 			string textAreaString = cardName + "\n" + description;
-			GUI.TextArea(new Rect(0, 200, 300, 50), textAreaString);
+			if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Battle)
+				GUI.TextArea(new Rect(0, Screen.height / 10 * 4, Screen.width, Screen.height / 10), textAreaString);
+			else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
+				GUI.TextArea(new Rect(0, Screen.height / 10 * 2, Screen.width, Screen.height / 10), textAreaString);
 		}
 	}
 
@@ -192,7 +195,7 @@ public class CardBase : MonoBehaviour {
 		}
 		else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
 		{
-
+			Selected = true;
 		}
 	}
 
@@ -213,6 +216,7 @@ public class CardBase : MonoBehaviour {
 		}
 		else if (GlobalDataManager.instance.scene == GlobalDataManager.Scene.Reward)
 		{
+			Selected = false;
 			// Check new cards
 			for (int i = 0; i < 3; i++)
 			{

@@ -62,6 +62,9 @@ public class BattleManager : MonoBehaviour {
 
     void Awake()
 	{
+		Screen.sleepTimeout = SleepTimeout.NeverSleep;
+		Screen.SetResolution(1080, 1920, true);
+
 		instance = this;
 
 		// 게임스테이트 초기화
@@ -161,13 +164,14 @@ public class BattleManager : MonoBehaviour {
 
 	private void OnGUI()
 	{
-		int width = 30, height = 30;
+		int width = 100, height = 100;
 		if(GUI.RepeatButton(new Rect(Screen.width - width, 0, width, height), "!"))
 		{
 			MonsterBase monsterScript = monster.GetComponent<MonsterBase>();
 			GUI.skin.textArea.wordWrap = true;
+			GUI.skin.textArea.fontSize = Screen.width / 30;
 			string textAreaString = monsterScript.monsterName + "\n" + monsterScript.description;
-			GUI.TextArea(new Rect(0, 100, Screen.width, 100), textAreaString);
+			GUI.TextArea(new Rect(0, Screen.height / 10 * 3, Screen.width, Screen.height / 10), textAreaString);
 		}
 	}
 
@@ -599,17 +603,17 @@ public class BattleManager : MonoBehaviour {
         if (KNIGHT == 3)
         {
             combination *= TRIO;
-            Debug.Log("Trio");
+            Debug.Log("Trio-Kinght");
         }
         if (WIZARD == 3)
         {
             combination *= TRIO;
-            Debug.Log("Trio");
+            Debug.Log("Trio-Wizard");
         }
         if (PRIEST == 3)
         {
             combination *= TRIO;
-            Debug.Log("Trio");
+            Debug.Log("Trio-Priest");
         }
         if (KNIGHT == 1 && WIZARD == 1 && PRIEST == 1)
         {

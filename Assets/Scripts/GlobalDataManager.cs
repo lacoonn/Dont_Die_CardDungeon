@@ -10,7 +10,7 @@ public class GlobalDataManager : MonoBehaviour
 {
 	public static GlobalDataManager instance = null;
 
-    public enum Scene { Menu, Battle, Reward };
+    public enum Scene { Menu, Info, Battle, Reward };
 
     public bool isInit = false;
 
@@ -117,6 +117,12 @@ public class GlobalDataManager : MonoBehaviour
         scene = Scene.Menu;
         SceneManager.LoadScene("MenuScene");
     }
+
+	public void ChangeSceneToInfo()
+	{
+		scene = Scene.Info;
+		SceneManager.LoadScene("InfoScene");
+	}
 
     public void ChangeSceneToBattle()
     {

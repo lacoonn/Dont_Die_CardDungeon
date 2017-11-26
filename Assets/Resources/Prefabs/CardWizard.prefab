@@ -322,9 +322,9 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1007430450814966}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -23.7, y: -6.89, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
+  m_LocalRotation: {x: -0, y: -0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.438333, y: 8.806666, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4021091675414226}
   - {fileID: 4432642191381238}
@@ -885,19 +885,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seal: 0
-  job: 0
+  job: 1
   isActive: 0
   status: 2
+  attackState: 0
   index: 0
   cardName: 
   description: 
   level: 1
   baseAttackPoint: 0
   baseHealPoint: 0
-  baseHealthPoint: 0
+  baseHp: 0
   attackPoint: 0
   healPoint: 0
-  healthPoint: 0
+  hp: 0
   nameText: {fileID: 102393033034359880}
   descriptionText: {fileID: 102257047019804334}
   attackText: {fileID: 102004935222823196}
@@ -905,3 +906,4 @@ MonoBehaviour:
   jobText: {fileID: 0}
   sealText: {fileID: 102361856648112356}
   newPos: {x: -2.5, y: -4.68, z: 20}
+  tempPos: {x: 0, y: 0, z: 0}
