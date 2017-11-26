@@ -61,6 +61,8 @@ public class CardBase : MonoBehaviour {
 	// 카드가 선택(터치)되어있는지 판별
 	bool Selected = false;
 
+	int speed = 3;
+
 	public void Awake()
 	{
 
@@ -108,10 +110,13 @@ public class CardBase : MonoBehaviour {
 							AttackMonster(BattleManager.instance.monster);
 							attackState = AttackState.Phase2;
 							//newPos = tempPos;
+
+							// 사운드
+							SoundManager.instance.PlayAttackSound();
 						}
 						else
 						{
-							transform.position = Vector3.Lerp(transform.position, BattleManager.instance.monsterPos.position, Time.deltaTime * 5);
+							transform.position = Vector3.Lerp(transform.position, BattleManager.instance.monsterPos.position, Time.deltaTime * 10);
 						}
 					}
 					else if (attackState == AttackState.Phase2)
@@ -125,7 +130,7 @@ public class CardBase : MonoBehaviour {
 						}
 						else
 						{
-							transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 5);
+							transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * 3);
 						}
 					}
 				}

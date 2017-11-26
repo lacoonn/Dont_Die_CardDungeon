@@ -34,6 +34,8 @@ public class MonsterBase : MonoBehaviour
 
 	public int speed = 3;
 
+	public bool soundTrigger = false;
+
 	public void Awake()
 	{
 
@@ -74,10 +76,20 @@ public class MonsterBase : MonoBehaviour
 				transform.position = Vector3.Lerp(transform.position, target, step);
 				//transform.position = Vector3.MoveTowards(transform.position, target, step);
 				speed += 2;
+
+				// 사운드
+				if (soundTrigger == false)
+				{
+					SoundManager.instance.PlayAttackSound();
+					soundTrigger = true;
+				}
 			}
 			else
 			{
 				transform.position = Vector3.Lerp(transform.position, homePosition, Time.deltaTime * 3);
+				
+				// 사운드
+				soundTrigger = false;
 			}
 			
 		}

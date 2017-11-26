@@ -6,22 +6,25 @@ public class SoundManager : MonoBehaviour
 {
 	public static SoundManager instance;
 
-	public GameObject soundEffect;
+	public GameObject flipCard;
+	public GameObject attack;
 
-	public AudioClip flipCard;
-	AudioSource myAudio;
+	//public AudioClip flipCard;
+	
+	//AudioSource myAudio;
 
 	private void Awake()
 	{
 		if (instance == null)
 			instance = this;
 
-		soundEffect = Resources.Load("Prefabs/Sound/FlipCardSound") as GameObject;
+		flipCard = Resources.Load("Prefabs/Sound/FlipCardSound") as GameObject;
+		attack = Resources.Load("Prefabs/Sound/AttackSound") as GameObject;
 	}
 
 	// Use this for initialization
 	void Start () {
-		myAudio = GetComponent<AudioSource>();
+		//myAudio = GetComponent<AudioSource>();
 
 	}
 	
@@ -30,13 +33,14 @@ public class SoundManager : MonoBehaviour
 		
 	}
 
-	public void PlayFlipCard()
+	public void PlayFlipCardSound()
 	{
-		myAudio.PlayOneShot(flipCard);
+		//myAudio.PlayOneShot(flipCard);
+		Instantiate(flipCard);
 	}
 
-	public void CreateSound()
+	public void PlayAttackSound()
 	{
-		Instantiate(soundEffect);
+		Instantiate(attack);
 	}
 }

@@ -285,7 +285,7 @@ public class BattleManager : MonoBehaviour {
 		}
 
 		// 사운드
-		SoundManager.instance.CreateSound();
+		SoundManager.instance.PlayFlipCardSound();
 
 		// 카드를 드로우 한 뒤 조합 상태를 확인
 		UpdateCombination();
@@ -315,7 +315,7 @@ public class BattleManager : MonoBehaviour {
 			Debug.Log("tomb -> deck");
 			
 			// 사운드
-			SoundManager.instance.CreateSound();
+			SoundManager.instance.PlayFlipCardSound();
 
 			yield return new WaitForSeconds(0.1f);
 		}
@@ -521,7 +521,7 @@ public class BattleManager : MonoBehaviour {
         UpdateCombination();
 
 		// 사운드
-		SoundManager.instance.CreateSound();
+		SoundManager.instance.PlayFlipCardSound();
 	}
 
     // 필드에 있는 카드들의 조합 상태를 확인하고 필드, 핸드의 카드들의 수치를 업데이트한다.
