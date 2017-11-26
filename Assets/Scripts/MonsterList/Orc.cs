@@ -26,6 +26,7 @@ public class Orc : MonsterBase
 
 		baseAttackPoint = baseAttackPoint + incrementalUnit;
 		currentAttackPoint = baseAttackPoint;
+		description = "공격력 " + currentAttackPoint + "\n다혈질 오크입니다. 공격 받을 때마다 공격력이 5% 증가합니다.";
 
 		// 이펙트
 		Vector3 tempVector = transform.position;

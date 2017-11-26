@@ -71,8 +71,9 @@ public class BattleManager : MonoBehaviour {
 		InitializePlayer();
 
 		// 몬스터 초기화
-		//string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
-		string randomMonsterName = "SkeletonSoldier"; // 테스트용
+		string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
+		Debug.Log(randomMonsterName);
+		//string randomMonsterName = "SkeletonSoldier"; // 테스트용
 
 		monster = Instantiate(Resources.Load("Prefabs/Monster/" + randomMonsterName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         monster.transform.position = monsterPos.position;
@@ -81,17 +82,19 @@ public class BattleManager : MonoBehaviour {
         // 상태이상 리스트 초기화
         conditionList = new List<ConditionBase>();
 
-        // 모든 카드를 덱으로 이동
-        int zPos = 0;
+		// 모든 카드를 덱으로 이동
+		int zPos = 0;
 		for (int i = 0; i < 9; i++)
 		{
             //Debug.Log(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardNameList[i]) as GameObject);
             SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[i];
             GameObject gameObject = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
 			CardBase cardBase = gameObject.GetComponent<CardBase>();
-            //
-            // I should set level to card!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            cardBase.level = cardData.level;
+
+			Debug.Log(GlobalDataManager.instance.saveData.currentCardList.Count);
+
+			// I should set level to card!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			cardBase.level = cardData.level;
             cardBase.baseAttackPoint *= (int)(1 + (cardBase.level - 1) * 0.1);
             cardBase.baseHealPoint *= (int)(1 + (cardBase.level - 1) * 0.1);
             cardBase.baseHp *= (int)(1 + (cardBase.level - 1) * 0.1);
@@ -158,12 +161,13 @@ public class BattleManager : MonoBehaviour {
 
 	private void OnGUI()
 	{
-		if(GUI.RepeatButton(new Rect(300, 0, 50, 50), "!"))
+		int width = 30, height = 30;
+		if(GUI.RepeatButton(new Rect(Screen.width - width, 0, width, height), "!"))
 		{
 			MonsterBase monsterScript = monster.GetComponent<MonsterBase>();
 			GUI.skin.textArea.wordWrap = true;
 			string textAreaString = monsterScript.monsterName + "\n" + monsterScript.description;
-			GUI.TextArea(new Rect(0, 100, 300, 100), textAreaString);
+			GUI.TextArea(new Rect(0, 100, Screen.width, 100), textAreaString);
 		}
 	}
 
@@ -625,6 +629,13 @@ public class BattleManager : MonoBehaviour {
 	IEnumerator EndTurn()
 	{
 		MonsterBase monsterScript = monster.GetComponent<MonsterBase>();
+
+		// 게임 종료 검사
+		if (monsterScript.currentHp <= 0 || player.currentHp <= 0)
+		{
+			EndBattle();
+		}
+
 		// 상태 이상 적용
 		ApplyConditionList(ConditionBase.ApplicationTime.TurnEnd);
 

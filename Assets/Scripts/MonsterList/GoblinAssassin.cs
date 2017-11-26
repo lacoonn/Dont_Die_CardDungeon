@@ -11,7 +11,7 @@ public class GoblinAssassin : MonsterBase
 		baseArmor = 0;
 		attackTurnInterval = 1;
 		monsterName = "고블린";
-		description = "공격력 " + baseAttackPoint + "\n조금 예리한 시선을 가진 고블린입니다. 50% 확률로 1.5배의 피해를 줍니다.";
+		description = "공격력 " + baseAttackPoint + "\n조금 예리한 시선을 가진 고블린입니다. 50% 확률로 1.5배의 피해를 줍니다. 20% 확률로 다음 턴에 한 번 더 공격합니다.";
 	}
 
 	public override IEnumerator AttackPlayer()

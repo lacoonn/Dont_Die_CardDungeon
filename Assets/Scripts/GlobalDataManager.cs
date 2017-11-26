@@ -70,15 +70,25 @@ public class GlobalDataManager : MonoBehaviour
 	{
 		int stageNumber = saveData.stageNumber;
 
-		if (1 <= stageNumber && stageNumber <= 9)
+		if (1 <= stageNumber && stageNumber <= 9) // 1 ~ 9 층
 		{
 			int randomNumber = Random.Range(0, allCardList.FirstFloorMonsterList.Count - 1);
 			return allCardList.FirstFloorMonsterList[randomNumber];
 		}
-		else if (9 <= stageNumber && stageNumber <= 9)
+		else if (10 <= stageNumber && stageNumber <= 10) // 10 층
 		{
 			int randomNumber = allCardList.FirstFloorMonsterList.Count - 1;
 			return allCardList.FirstFloorMonsterList[randomNumber];
+		}
+		else if (11 <= stageNumber && stageNumber <= 19) // 11 ~ 19 층
+		{
+			int randomNumber = Random.Range(0, allCardList.SecondFloorMonsterList.Count - 1);
+			return allCardList.SecondFloorMonsterList[randomNumber];
+		}
+		else if (20 <= stageNumber && stageNumber <= 20) // 20 층
+		{
+			int randomNumber = allCardList.SecondFloorMonsterList.Count - 1;
+			return allCardList.SecondFloorMonsterList[randomNumber];
 		}
 		else // 에러
 		{
