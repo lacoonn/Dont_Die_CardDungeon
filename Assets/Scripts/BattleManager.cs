@@ -284,6 +284,9 @@ public class BattleManager : MonoBehaviour {
 			}
 		}
 
+		// 사운드
+		SoundManager.instance.CreateSound();
+
 		// 카드를 드로우 한 뒤 조합 상태를 확인
 		UpdateCombination();
 
@@ -310,6 +313,10 @@ public class BattleManager : MonoBehaviour {
 			tempCard.GetComponent<CardBase>().status = CardBase.Status.inDeck;
 			tempCard.GetComponent<CardBase>().index = deckCards.IndexOf(tempCard);
 			Debug.Log("tomb -> deck");
+			
+			// 사운드
+			SoundManager.instance.CreateSound();
+
 			yield return new WaitForSeconds(0.1f);
 		}
 
@@ -391,6 +398,7 @@ public class BattleManager : MonoBehaviour {
         }
     }
 
+	// 카드들의 공격 과정
     IEnumerator AttackPhase()
     {
         // 카드 위치 초기화
@@ -432,6 +440,7 @@ public class BattleManager : MonoBehaviour {
         yield return new WaitForSeconds(0.5f);
     }
 
+	// 카드를 무덤으로
     public void CardToTomb(GameObject cardObject)
     {
         CardBase cardComponent = cardObject.GetComponent<CardBase>();
@@ -464,7 +473,7 @@ public class BattleManager : MonoBehaviour {
         }
     }
 
-
+	// 카드 교체
     public void SwapCards(GameObject card0, GameObject card1)
     {
         GameObject tempCard = Instantiate(card1) as GameObject;
@@ -510,7 +519,10 @@ public class BattleManager : MonoBehaviour {
 
         // 카드의 위치를 바꾼 뒤의 조합 상태를 확인
         UpdateCombination();
-    }
+
+		// 사운드
+		SoundManager.instance.CreateSound();
+	}
 
     // 필드에 있는 카드들의 조합 상태를 확인하고 필드, 핸드의 카드들의 수치를 업데이트한다.
     public void UpdateCombination()
@@ -668,6 +680,7 @@ public class BattleManager : MonoBehaviour {
 			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
 			while (gameState != GameState.DrawEnd)
 				yield return new WaitForSeconds(0.1f);
+			yield return new WaitForSeconds(0.1f);
 		}
 
 		//while (gameState == GameState.Drawing || gameState == GameState.Shuffling)
