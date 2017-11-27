@@ -20,14 +20,12 @@ public class GoblinAssassin : MonsterBase
 
 		BattleManager.instance.gameState = BattleManager.GameState.MonsterAttacking;
 
-		Vector3 tempVector = transform.position;
-		tempVector.z -= (float)0.1;
-
 		int randomCritical = Random.Range(1, 101); // 치명타 공격 확률
 		if (1 <= randomCritical && randomCritical <= 50) // 치명타 공격 성공
 		{
 			Debug.Log(monsterName + "가 치명타 공격을 성공했습니다.");
-			Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+			CreateSkillEffect();
+			CreateSkillText("치명타 공격");
 			currentAttackPoint = (int)(currentAttackPoint * 1.5);
 		}
 		else // 치명타 공격 실패
@@ -40,7 +38,8 @@ public class GoblinAssassin : MonsterBase
 		if (1 <= randomContinuous && randomContinuous <= 20) // 연속 공격 성공
 		{
 			Debug.Log(monsterName + "가 연속 공격을 성공했습니다.");
-			Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+			CreateSkillEffect();
+			CreateSkillText("연속 공격");
 			continuousAttack = true;
 		}
 		else // 연속 공격 실패

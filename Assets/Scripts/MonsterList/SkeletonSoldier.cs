@@ -18,7 +18,7 @@ public class SkeletonSoldier : MonsterBase
 
 	public override IEnumerator AttackPlayer()
 	{
-		Debug.Log("SkeletonSoldier 1 attack player!");
+		Debug.Log(monsterName + " first attack player!");
 
 		BattleManager.instance.gameState = BattleManager.GameState.MonsterAttacking;
 
@@ -32,6 +32,8 @@ public class SkeletonSoldier : MonsterBase
 		{
 			turnLeftUntilAttack = 1;
 			oneMoreAttack = false;
+			CreateSkillEffect();
+			CreateSkillText("연속 공격");
 		}
 		else
 		{

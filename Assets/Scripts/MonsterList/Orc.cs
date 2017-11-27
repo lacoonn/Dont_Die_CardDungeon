@@ -29,9 +29,8 @@ public class Orc : MonsterBase
 		description = "공격력 " + currentAttackPoint + "\n다혈질 오크입니다. 공격 받을 때마다 공격력이 5% 증가합니다.";
 
 		// 이펙트
-		Vector3 tempVector = transform.position;
-		tempVector.z -= (float)0.1;
-		Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+		CreateSkillEffect();
+		CreateSkillText("분노");
 
 		currentHp -= realDamage;
 		if (currentHp <= 0)

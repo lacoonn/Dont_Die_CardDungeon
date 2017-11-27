@@ -7,6 +7,7 @@ public class MonsterBase : MonoBehaviour
 {
 	// 필요한 리소스
 	protected GameObject monsterSkillEffect;
+	protected GameObject monsterSkillText;
 
     public string monsterName;
     public string description;
@@ -45,6 +46,7 @@ public class MonsterBase : MonoBehaviour
 	public void Start()
     {
         monsterSkillEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
+		monsterSkillText = Resources.Load("Prefabs/Effect/MonsterSkillText") as GameObject;
 
 		// base -> current
 		maxHp = baseMaxHp;
@@ -158,5 +160,21 @@ public class MonsterBase : MonoBehaviour
 		{
 			currentHp = 0;
 		}
+	}
+
+	public virtual void CreateSkillEffect()
+	{
+		Vector3 tempVector = transform.position;
+		tempVector.z -= (float)0.1;
+		Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+	}
+
+	public virtual void CreateSkillText(string text)
+	{
+		Vector3 tempVector = transform.position;
+		tempVector.x += 1;
+		tempVector.y += 1;
+		GameObject temp = Instantiate(monsterSkillText, tempVector, Quaternion.identity);
+		temp.GetComponent<TextEffect>().SetText(text);
 	}
 }

@@ -19,20 +19,19 @@ public class GoblinShaman : MonsterBase {
 
 		BattleManager.instance.gameState = BattleManager.GameState.MonsterAttacking;
 
-		Vector3 tempVector = transform.position;
-		tempVector.z -= (float)0.1;
-
 		// override part
 		int randomResult = Random.Range(1, 101);
 		if (1 <= randomResult && randomResult <= 50) // 피해 증가 스킬
 		{
-			Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+			CreateSkillEffect();
+			CreateSkillText("공격력 증가");
 			yield return new WaitForSeconds(0.5f);
 			currentAttackPoint = (int)(currentAttackPoint * 1.5);
 		}
 		else // 체력 회복 스킬
 		{
-			Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+			CreateSkillEffect();
+			CreateSkillText("체력 회복");
 			yield return new WaitForSeconds(0.5f);
 			HealingSkill();
 		}

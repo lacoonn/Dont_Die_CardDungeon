@@ -30,8 +30,14 @@ public class SkeletonKnight : MonsterBase
 		turnLeftUntilAttack = attackTurnInterval;
 
 		// override part
-		currentAttackPoint = (int)(currentAttackPoint * (1 + 0.1 * stack)); // 공격력에 방어 스택을 적용
-		stack = 0; // 방어 스택을 초기화
+		if (stack > 0)
+		{
+			CreateSkillEffect();
+			CreateSkillText(stack.ToString() + "카운터 공격");
+			currentAttackPoint = (int)(currentAttackPoint * (1 + 0.1 * stack)); // 공격력에 방어 스택을 적용
+			stack = 0; // 방어 스택을 초기화
+		}
+		
 		// override part---
 
 		BattleManager.instance.player.Attacked(currentAttackPoint);
@@ -50,11 +56,10 @@ public class SkeletonKnight : MonsterBase
 		int randomResult = Random.Range(1, 101);
 		if (randomResult <= 20) // 방어에 성공
 		{
-			Vector3 tempVector = transform.position;
-			tempVector.z -= (float)0.1;
-			Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
-
 			stack++;
+
+			CreateSkillEffect();
+			CreateSkillText("방어(" + stack.ToString() + ")");
 		}
 		else // 방어에 실패
 		{

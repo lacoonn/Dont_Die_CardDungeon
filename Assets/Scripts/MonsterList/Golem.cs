@@ -26,9 +26,8 @@ public class Golem : MonsterBase
 
 		BattleManager.instance.player.Attacked(debrisDamage);
 		// 이펙트
-		Vector3 tempVector = transform.position;
-		tempVector.z -= (float)0.1;
-		Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+		CreateSkillEffect();
+		CreateSkillText("파편");
 
 		currentHp -= realDamage;
 		if (currentHp <= 0)

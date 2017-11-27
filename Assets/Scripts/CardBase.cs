@@ -120,7 +120,7 @@ public class CardBase : MonoBehaviour {
 					else if (attackState == AttackState.Phase2)
 					{
 						float distance = Vector3.Distance(transform.position, newPos);
-						if (distance < 1)
+						if (distance < 0.5)
 						{
 							Debug.Log("One card phase2 end");
 							BattleManager.instance.gameState = BattleManager.GameState.CardAttackFinish;

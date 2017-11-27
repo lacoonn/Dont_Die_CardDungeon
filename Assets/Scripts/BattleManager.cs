@@ -75,8 +75,8 @@ public class BattleManager : MonoBehaviour {
 
 		// 몬스터 초기화
 		string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
+		//string randomMonsterName = "SkeletonKnight"; // 테스트용
 		Debug.Log(randomMonsterName);
-		//string randomMonsterName = "SkeletonSoldier"; // 테스트용
 
 		monster = Instantiate(Resources.Load("Prefabs/Monster/" + randomMonsterName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         monster.transform.position = monsterPos.position;
@@ -243,7 +243,7 @@ public class BattleManager : MonoBehaviour {
 			StartCoroutine(ShuffleDeck());
 
 			while (gameState == GameState.Shuffling)
-				yield return new WaitForSeconds(0.1f);
+				yield return new WaitForSeconds(0.2f);
 
 			gameState = GameState.Drawing;
 		}
@@ -427,7 +427,7 @@ public class BattleManager : MonoBehaviour {
             attackingCard = fieldCards[i];
 
 			while (gameState != GameState.CardAttackFinish) {
-				yield return new WaitForSeconds (0.1f);
+				yield return new WaitForSeconds(0.2f);
 			}
 		}
         gameState = GameState.Default;
@@ -436,7 +436,8 @@ public class BattleManager : MonoBehaviour {
         for (int i = 0; i < fieldCards.Length; i++)
         {
             CardToTomb(fieldCards[i]);
-        }
+			yield return new WaitForSeconds(0.2f);
+		}
 		yield return new WaitForSeconds(0.5f);
 
 		// 턴 종료
@@ -475,7 +476,10 @@ public class BattleManager : MonoBehaviour {
             tempPosition.z++;
             cardComponent.newPos = tempPosition;
         }
-    }
+
+		// 사운드
+		SoundManager.instance.PlayFlipCardSound();
+	}
 
 	// 카드 교체
     public void SwapCards(GameObject card0, GameObject card1)
@@ -683,13 +687,13 @@ public class BattleManager : MonoBehaviour {
 		{
 			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
 			while (gameState != GameState.DrawEnd)
-				yield return new WaitForSeconds(0.1f);
-			yield return new WaitForSeconds(0.1f);
+				yield return new WaitForSeconds(0.2f);
+			yield return new WaitForSeconds(0.2f);
 		}
 
 		//while (gameState == GameState.Drawing || gameState == GameState.Shuffling)
 		while (gameState != GameState.DrawEnd)
-			yield return new WaitForSeconds(0.1f);
+			yield return new WaitForSeconds(0.2f);
 
 		// 플레이어 다시 계산
 

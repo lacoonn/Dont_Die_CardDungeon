@@ -16,29 +16,27 @@ public class SkeletonReaper : MonsterBase
 
 	public override IEnumerator AttackPlayer()
 	{
-		Debug.Log("SkeletonSoldier 1 attack player!");
+		Debug.Log(monsterName + " attack player!");
 
 		BattleManager.instance.gameState = BattleManager.GameState.MonsterAttacking;
-
-		Vector3 tempVector = transform.position;
-		tempVector.z -= (float)0.1;
-
-		yield return new WaitForSeconds(0.5f);
 
 		// override part
 		int randomCannotHeal = Random.Range(1, 101);
 		int randomCritical = Random.Range(1, 101);
 		if (randomCannotHeal <= 30)
 		{
-			Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+			CreateSkillEffect();
+			CreateSkillText("회복 무효");
 			// 회복 무효 디버프
 			BattleManager.instance.conditionList.Add(new CannotHeal(1));
 		}
 		if (randomCritical <= 50)
 		{
-			Instantiate(monsterSkillEffect, tempVector, Quaternion.identity);
+			CreateSkillEffect();
+			CreateSkillText("치명타 공격");
 			currentAttackPoint = (currentAttackPoint * 2);
 		}
+		yield return new WaitForSeconds(0.5f);
 		// override part end
 
 		BattleManager.instance.player.Attacked(currentAttackPoint);
