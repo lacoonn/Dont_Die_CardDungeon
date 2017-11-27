@@ -172,8 +172,8 @@ public class MonsterBase : MonoBehaviour
 	public virtual void CreateSkillText(string text)
 	{
 		Vector3 tempVector = transform.position;
-		tempVector.x += 1;
-		tempVector.y += 1;
+		tempVector.x += 2;
+		tempVector.z -= (float)0.1;
 		GameObject temp = Instantiate(monsterSkillText, tempVector, Quaternion.identity);
 		temp.GetComponent<TextEffect>().SetText(text);
 	}

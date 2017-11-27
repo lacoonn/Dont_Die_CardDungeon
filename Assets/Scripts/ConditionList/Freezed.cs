@@ -13,6 +13,12 @@ public class Freezed : ConditionBase
 
 	override public void ApplyCondition(MonsterBase monsterBase)
     {
+		Vector3 location = BattleManager.instance.monsterPos.position;
+		location.x += 1;
+		location.y += 1;
+		location.z = (int)(location.z - 0.1);
+		BattleManager.instance.CreateSkillText("행동 불가", location);
+
 		monsterBase.canWork = false;
 		leftTurn--;
 	}

@@ -35,9 +35,10 @@ public class BattleManager : MonoBehaviour {
 
     // private 오브젝트
     private GameObject leaderEffect;
-    
-    // 조합 배율 변수
-    public int baseCombination = 1;
+	protected GameObject textEffect;
+
+	// 조합 배율 변수
+	public int baseCombination = 1;
     public int combination = 1;
 
     // 텍스트 매쉬
@@ -137,8 +138,10 @@ public class BattleManager : MonoBehaviour {
 	void Start ()
     {
         leaderEffect = Resources.Load("Prefabs/Effect/LeaderEffect") as GameObject;
+		textEffect = Resources.Load("Prefabs/Effect/MonsterSkillText") as GameObject;
 
-        stageNumberText.text = "Stage " + GlobalDataManager.instance.saveData.stageNumber;
+
+		stageNumberText.text = "Stage " + GlobalDataManager.instance.saveData.stageNumber;
 
 		StartCoroutine(StartGame());
     }
@@ -411,11 +414,17 @@ public class BattleManager : MonoBehaviour {
             fieldCards[i].transform.position = fieldPos[i].position;
             fieldCards[i].transform.rotation = new Quaternion(0, 180, 0, 0);
         }
-        
-        // 리더 효과 적용
-        Vector3 tempVector = fieldPos [1].transform.position;
+
+		// 리더 효과 이펙트
+		Vector3 tempVector = fieldPos [1].transform.position;
         tempVector.z = (float)(tempVector.z - 0.1);
-        Instantiate(leaderEffect, tempVector, Quaternion.identity); // 리더 효과 이펙트
+        Instantiate(leaderEffect, tempVector, Quaternion.identity);
+
+		// 리더 효과 텍스트
+		tempVector.y += 1;
+		CreateSkillText("리더 효과 적용", tempVector);
+
+		// 리더 효과 적용
 		fieldCards [1].GetComponent<CardBase> ().ApplyLeaderEffect (); // 가운데 카드 리더 효과 적용
 		yield return new WaitForSeconds(0.5f);
 		ApplyConditionList(ConditionBase.ApplicationTime.Always); // Always 상태이상 효과 즉시 적용
@@ -758,4 +767,10 @@ public class BattleManager : MonoBehaviour {
             GlobalDataManager.instance.ChangeSceneToReward();
         }
     }
+
+	public virtual void CreateSkillText(string text, Vector3 location)
+	{
+		GameObject temp = Instantiate(textEffect, location, Quaternion.identity);
+		temp.GetComponent<TextEffect>().SetText(text);
+	}
 }

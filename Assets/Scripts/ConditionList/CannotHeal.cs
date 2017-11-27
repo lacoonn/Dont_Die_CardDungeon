@@ -13,7 +13,12 @@ public class CannotHeal : ConditionBase
 
 	public override void ApplyCondition(BattleManager battleManager)
 	{
-		foreach(GameObject cardItem in BattleManager.instance.fieldCards)
+		Vector3 location = BattleManager.instance.fieldCards[1].transform.position;
+		location.y += 1;
+		location.z = (int)(location.z - 0.1);
+		BattleManager.instance.CreateSkillText("치유 불가", location);
+
+		foreach (GameObject cardItem in BattleManager.instance.fieldCards)
 		{
 			CardBase cardBase = cardItem.GetComponent<CardBase>();
 			cardBase.healPoint = 0;

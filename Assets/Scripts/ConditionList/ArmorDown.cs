@@ -16,6 +16,12 @@ public class ArmorDown : ConditionBase
 
 	override public void ApplyCondition(MonsterBase monsterBase)
 	{
+		Vector3 location = BattleManager.instance.monsterPos.position;
+		location.x += 1;
+		location.y += 1;
+		location.z = (int)(location.z - 0.1);
+		BattleManager.instance.CreateSkillText("방어력 감소 " + unit, location);
+		
 		monsterBase.currentArmor -= unit;
 		if (monsterBase.currentArmor < 0)
 			monsterBase.currentArmor = 0;

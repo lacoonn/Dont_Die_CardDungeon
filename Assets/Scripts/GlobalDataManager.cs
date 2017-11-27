@@ -66,6 +66,20 @@ public class GlobalDataManager : MonoBehaviour
 		instance.isInit = true;
 	}
 
+	private void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			QuitProcess();
+		}
+	}
+
+	public void QuitProcess()
+	{
+		SaveDataToXml();
+		Application.Quit();
+	}
+
 	public string GetStageMonsterName()
 	{
 		int stageNumber = saveData.stageNumber;
