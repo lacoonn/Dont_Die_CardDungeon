@@ -23,8 +23,5 @@ public class Paladin : CardBase
 			cardScript.attackPoint += cardScript.healPoint;
 			cardScript.healPoint = 0;
 		}
-
-
-		//BattleManager.instance.conditionList.Add(new Freezed(ConditionBase.ApplicationTarget.Monster, 1));
 	}
 }

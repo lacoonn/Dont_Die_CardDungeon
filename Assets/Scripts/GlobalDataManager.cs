@@ -33,7 +33,7 @@ public class GlobalDataManager : MonoBehaviour
 
         allCardList = new AllCardList();
 
-		// Read savedata or init saveData variable
+		// 세이브데이터 파일을 읽거나 새 데이터 생성
 		if (File.Exists("savedata.xml"))
         {
             Debug.Log("Find save data");
@@ -43,7 +43,6 @@ public class GlobalDataManager : MonoBehaviour
             {
                 Debug.Log("Can read save data");
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(SaveData));
-                //
                 Debug.Log("Deserialize start");
                 saveData = (SaveData)xmlSerializer.Deserialize(xmlReader);
                 Debug.Log("Deserialize end");
@@ -119,7 +118,7 @@ public class GlobalDataManager : MonoBehaviour
 
     public void SaveDataToXml()
     {
-        // Save data before quit
+        // 종료 전에 세이브데이터 저장
         FileStream fileStream = new FileStream("savedata.xml", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
         XmlWriter xmlWriter = XmlWriter.Create(fileStream);
         XmlSerializer xmlSerializer = new XmlSerializer(typeof(SaveData));

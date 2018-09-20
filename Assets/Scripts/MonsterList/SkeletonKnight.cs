@@ -38,7 +38,7 @@ public class SkeletonKnight : MonsterBase
 			stack = 0; // 방어 스택을 초기화
 		}
 		
-		// override part---
+		// override part end
 
 		BattleManager.instance.player.Attacked(currentAttackPoint);
 

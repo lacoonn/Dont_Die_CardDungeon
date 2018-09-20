@@ -76,7 +76,6 @@ public class BattleManager : MonoBehaviour {
 
 		// 몬스터 초기화
 		string randomMonsterName = GlobalDataManager.instance.GetStageMonsterName();
-		//string randomMonsterName = "SkeletonKnight"; // 테스트용
 		Debug.Log(randomMonsterName);
 
 		monster = Instantiate(Resources.Load("Prefabs/Monster/" + randomMonsterName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
@@ -92,18 +91,17 @@ public class BattleManager : MonoBehaviour {
 		{
             //Debug.Log(Resources.Load("Prefabs/Card/" + GlobalDataManager.instance.currentCardNameList[i]) as GameObject);
             SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[i];
-            GameObject gameObject = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+            GameObject gameObject = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
 			CardBase cardBase = gameObject.GetComponent<CardBase>();
 
 			Debug.Log(GlobalDataManager.instance.saveData.currentCardList.Count);
 
-			// I should set level to card!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			cardBase.level = cardData.level;
             cardBase.baseAttackPoint *= (int)(1 + (cardBase.level - 1) * 0.1);
             cardBase.baseHealPoint *= (int)(1 + (cardBase.level - 1) * 0.1);
             cardBase.baseHp *= (int)(1 + (cardBase.level - 1) * 0.1);
-            //
             cardBase.isActive = true;
+
 			// 각인 설정
 			if (i % 3 == 0)
 				cardBase.seal = CardBase.Seal.J;
@@ -219,7 +217,7 @@ public class BattleManager : MonoBehaviour {
 		gameStarted = true;
 
 		Debug.Log("ShuffleDeck Start");
-		// Shuffle cards and draw from deck
+		// 카드를 셔플하고 덱에서 드로우
 		StartCoroutine(ShuffleDeck());
 		while (gameState != GameState.ShuffleEnd) {
 			yield return new WaitForSeconds (0.1f);
@@ -327,7 +325,6 @@ public class BattleManager : MonoBehaviour {
 			yield return new WaitForSeconds(0.1f);
 		}
 
-		//gameState = tempState;
 		gameState = GameState.ShuffleEnd;
 	}
 
@@ -340,7 +337,7 @@ public class BattleManager : MonoBehaviour {
         Vector3 tempCardPosition;
         float distance;
         
-        // 공격 확인!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // 공격 확인
         if (currentCardPosition.y > 1 && cardObject.GetComponent<CardBase>().status == CardBase.Status.inField)
         {
             Debug.Log("Attack!!!!!!!!!!!!!!!!!!!!!");
@@ -441,7 +438,7 @@ public class BattleManager : MonoBehaviour {
 		}
         gameState = GameState.Default;
 
-        // 필드의 카드를 무덤으로!!!
+        // 필드의 카드를 무덤으로
         for (int i = 0; i < fieldCards.Length; i++)
         {
             CardToTomb(fieldCards[i]);
@@ -668,7 +665,7 @@ public class BattleManager : MonoBehaviour {
 		// 상태 이상 적용
 		ApplyConditionList(ConditionBase.ApplicationTime.TurnEnd);
 
-        // 몬스터 공격!
+        // 몬스터 공격
         if (monsterScript.TryToAttack())
         {
             StartCoroutine(monster.GetComponent<MonsterBase>().AttackPlayer());
@@ -691,7 +688,7 @@ public class BattleManager : MonoBehaviour {
 	// 새 턴에 해야 할 행동
     IEnumerator OnNewTurn()
     {
-		// 드로우!!!
+		// 드로우
 		for (int i = 0; i < fieldCards.Length; i++)
 		{
 			StartCoroutine(DrawCardFromDeck(CardBase.Status.inField));
@@ -700,11 +697,10 @@ public class BattleManager : MonoBehaviour {
 			yield return new WaitForSeconds(0.2f);
 		}
 
-		//while (gameState == GameState.Drawing || gameState == GameState.Shuffling)
+		// 플레이어 다시 계산
 		while (gameState != GameState.DrawEnd)
 			yield return new WaitForSeconds(0.2f);
 
-		// 플레이어 다시 계산
 
 		// 몬스터 다시 계산
 		monster.GetComponent<MonsterBase>().ResetMonsterStatus();

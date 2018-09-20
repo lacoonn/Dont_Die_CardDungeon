@@ -70,7 +70,7 @@ public class CardBase : MonoBehaviour {
 	public void Start()
 	{
 		distanceToScreen = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
-		// set seal textmesh
+		// 텍스트 매쉬 설정
 		if (seal == Seal.J)
 			sealText.text = "J";
 		else if (seal == Seal.Q)
@@ -107,7 +107,6 @@ public class CardBase : MonoBehaviour {
 							Debug.Log("One card phase1 end");
 							AttackMonster(BattleManager.instance.monster);
 							attackState = AttackState.Phase2;
-							//newPos = tempPos;
 
 							// 사운드
 							SoundManager.instance.PlayAttackSound();
@@ -229,11 +228,6 @@ public class CardBase : MonoBehaviour {
 					RewardManager.instance.ClickCurrentCard(i);
 				}
 			}
-			/*// Check current cards
-			for (int i = 0; i < 9; i++)
-			{
-
-			}*/
 		}
 	}
 
@@ -266,7 +260,7 @@ public class CardBase : MonoBehaviour {
 
 	}
 
-	public virtual void AttackMonster(GameObject target) // 몬스터를 공격!!
+	public virtual void AttackMonster(GameObject target) // 몬스터를 공격
     {
         Debug.Log("Card attack monster!");
         // Attack monster
@@ -275,7 +269,6 @@ public class CardBase : MonoBehaviour {
         // Heal player
         BattleManager.instance.player.Healed(healPoint);
 
-        //action();
         BattleManager.instance.AddHistory(this, target.GetComponent<MonsterBase>());
     }
 
@@ -290,17 +283,10 @@ public class CardBase : MonoBehaviour {
 		{
 			if (card.gameObject != null)
 			{
-                //BattleManager.instance.fieldCards.Remove(card.gameObject);
-
-				//BoardBehaviourScript.instance.PlaySound(BoardBehaviourScript.instance.cardDestroy);
 				Destroy(card.gameObject);
 
 			}
 
-		}
-        else
-		{
-			//card = null;
 		}
 	}
     

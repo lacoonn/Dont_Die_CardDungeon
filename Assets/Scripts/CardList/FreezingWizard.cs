@@ -36,12 +36,12 @@ public class FreezingWizard : CardBase
 	public override void ApplyLeaderEffect()
 	{
 		int randomFreeze = Random.Range(1, 101);
-		if (1 <= randomFreeze && randomFreeze <= currentFreezeChance) // 연속 공격 성공
+		if (1 <= randomFreeze && randomFreeze <= currentFreezeChance) // 빙결 성공
 		{
 			BattleManager.instance.conditionList.Add(new Freezed(ConditionBase.ApplicationTarget.Monster, 1));
 			Debug.Log(cardName + "가 적을 얼렸습니다.");
 		}
-		else // 연속 공격 실패
+		else // 빙결 실패
 		{
 			Debug.Log(cardName + "가 적을 얼리기에 실패했습니다.");
 		}

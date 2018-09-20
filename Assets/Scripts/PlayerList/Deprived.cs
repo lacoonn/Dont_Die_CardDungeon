@@ -12,8 +12,7 @@ public class Deprived : PlayerBase
 
 	public override void Attacked(int damage)
 	{
-		//damage = (int)(damage * 1.2);
-		damage = (int)(damage * 1.0);
+		damage = (int)(damage * 1.2);
 		currentHp -= damage;
 		if (currentHp <= 0)
 		{

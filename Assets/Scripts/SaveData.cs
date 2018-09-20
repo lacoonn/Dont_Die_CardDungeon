@@ -18,7 +18,7 @@ public class SaveData
     }
 	public enum PlayerName { Deprived };
 
-    // variables
+    // 변수
     public int stageNumber;
 	public PlayerName playerName;
     public List<CardData> currentCardList;

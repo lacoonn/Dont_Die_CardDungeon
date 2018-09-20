@@ -9,12 +9,8 @@ public class AllCardList
 	public List<string> priestCardList = new List<string>();
 	public List<string> monsterList = new List<string>();
 
-	// 1층 몬스터
-	public List<string> FirstFloorMonsterList = new List<string>();
-	// 2층 몬스터
-	public List<string> SecondFloorMonsterList = new List<string>();
-	// 3층 몬스터
-	public List<string> ThirdFloorMonsterList = new List<string>();
+	// 층별 몬스터
+	public List<string>[] EachFloorMonsterList = new List<string>[5];
 
 	public AllCardList()
 	{
@@ -45,21 +41,20 @@ public class AllCardList
 		monsterList.Add("SkeletonReaper");
 		monsterList.Add("Orc");
 		monsterList.Add("Golem");
-
 		monsterList.Add("Dragon");
 
 		// 1층 몬스터
-		FirstFloorMonsterList.Add("Goblin");
-		FirstFloorMonsterList.Add("Orc");
-		FirstFloorMonsterList.Add("Golem");
-		FirstFloorMonsterList.Add("GoblinAssassin");
-		FirstFloorMonsterList.Add("GoblinShaman");
+		EachFloorMonsterList[0].Add("Goblin");
+		EachFloorMonsterList[0].Add("Orc");
+		EachFloorMonsterList[0].Add("Golem");
+		EachFloorMonsterList[0].Add("GoblinAssassin");
+		EachFloorMonsterList[0].Add("GoblinShaman");
 
 		//2층 몬스터
-		SecondFloorMonsterList.Add("SkeletonSoldier");
-		SecondFloorMonsterList.Add("Orc");
-		SecondFloorMonsterList.Add("Golem");
-		SecondFloorMonsterList.Add("SkeletonKnight");
-		SecondFloorMonsterList.Add("SkeletonReaper");
+		EachFloorMonsterList[1].Add("SkeletonSoldier");
+		EachFloorMonsterList[1].Add("Orc");
+		EachFloorMonsterList[1].Add("Golem");
+		EachFloorMonsterList[1].Add("SkeletonKnight");
+		EachFloorMonsterList[1].Add("SkeletonReaper");
 	}
 }

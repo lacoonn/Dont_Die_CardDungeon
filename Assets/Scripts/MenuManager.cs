@@ -8,8 +8,6 @@ public class MenuManager : MonoBehaviour {
 	{
 		Screen.sleepTimeout = SleepTimeout.NeverSleep;
 		Screen.SetResolution(1080, 1920, true);
-
-		//GlobalDataManager.instance.scene = GlobalDataManager.Scene.Menu; // 현재 씬을 메뉴로 설정
 	}
 
 	// Use this for initialization

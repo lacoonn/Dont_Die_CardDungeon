@@ -11,10 +11,12 @@ public class RewardManager : MonoBehaviour {
 	public GameObject[] newCardBorders = new GameObject[3];
 	public GameObject[] newCards = new GameObject[3];
 
-	
-	public Transform[] currentCardPositions = new Transform[3]; // Cards that job is same with selectetd new card
+	// 선택된 새 카드와 직업이 같은 카드 리스트
+	public Transform[] currentCardPositions = new Transform[3];
 	public GameObject[] currentCardBorders = new GameObject[3];
-	public GameObject[] currentCards = new GameObject[9]; // Current deck cards
+
+	// 현재 덱의 카드 리스트
+	public GameObject[] currentCards = new GameObject[9];
 	public GameObject[] currentSelectedCards = new GameObject[3];
 
 
@@ -35,7 +37,7 @@ public class RewardManager : MonoBehaviour {
         selectedNewCardIndex = -1;
 		selectedCurrentCardIndex = -1;
 
-        // Get randomized new 3 cards
+        // 랜덤 카드 3개 생성
         int randomKnightIndex = Random.Range(1, GlobalDataManager.instance.allCardList.knightCardList.Count);
         randomKnightString = GlobalDataManager.instance.allCardList.knightCardList[randomKnightIndex];
 
@@ -45,10 +47,11 @@ public class RewardManager : MonoBehaviour {
         int randomPriestIndex = Random.Range(1, GlobalDataManager.instance.allCardList.priestCardList.Count);
         randomPriestString = GlobalDataManager.instance.allCardList.priestCardList[randomPriestIndex];
 
-		// Load card data from prefabs
+		// 프리팹에서 카드 데이터를 가져온다
 		int stageNumber = GlobalDataManager.instance.saveData.stageNumber;
 
-		newCards[0] = Instantiate(Resources.Load("Prefabs/Card/" + randomKnightString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity); // should instantiate after load resources
+		// 리소스를 불러온 후 인스턴스화 필요
+		newCards[0] = Instantiate(Resources.Load("Prefabs/Card/" + randomKnightString) as GameObject, new Vector3(0, 0, 0), Quaternion.identity);
         newCards[0].transform.position = newCardPositions[0].position;
 		SetCardStatusAsLevel(newCards[0], stageNumber);
 		newCardBorders[0].transform.position = newCardPositions[0].position;
@@ -65,11 +68,14 @@ public class RewardManager : MonoBehaviour {
 		SetCardStatusAsLevel(newCards[2], stageNumber);
 		newCardBorders[2].transform.position = newCardPositions[2].position;
         newCardBorders[2].SetActive(false);
-        for (int i = 0; i < 9; i++) // current cards
+		
+		// 현재 카드 목록
+        for (int i = 0; i < 9; i++)
         {
             SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[i];
 
-            currentCards[i] = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 10), Quaternion.identity); // should instantiate after load resources
+			// 리소스를 불러온 후 인스턴스화 필요
+            currentCards[i] = Instantiate(Resources.Load("Prefabs/Card/" + cardData.cardName) as GameObject, new Vector3(0, 0, 10), Quaternion.identity);
             if (i % 3 == 0)
                 currentCards[i].GetComponent<CardBase>().seal = CardBase.Seal.J;
             if (i % 3 == 1)
@@ -81,11 +87,11 @@ public class RewardManager : MonoBehaviour {
 			SetCardStatusAsLevel(currentCards[i], cardData.level);
 		}
 
-        // Init selectedCards NULL
+		// 선택된 카드 목록을 NULL로 초기화
         for (int i = 0; i < 3; i++)
             currentSelectedCards[i] = null;
 
-        // set current cards border position
+		// 카드 자리 테두리 위치를 설정
         currentCardBorders[0].transform.position = currentCardPositions[0].position;
         currentCardBorders[0].SetActive(false);
         currentCardBorders[1].transform.position = currentCardPositions[1].position;
@@ -97,7 +103,7 @@ public class RewardManager : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-		// Start Reward Scene!
+		// 보상 씬 시작
 		StartCoroutine(StartRewardScene());
 	}
 	
@@ -126,40 +132,32 @@ public class RewardManager : MonoBehaviour {
 		yield return new WaitForSeconds(0.1f);
 	}
 
-	// excuted when progress button is clicked
+	// 진행 버튼이 눌리면 실행
 	public void ClickProgressButton()
 	{
 		if (selectedCurrentCardIndex != -1 && selectedNewCardIndex != -1)
 		{
 			EndRewardScene();
-            GlobalDataManager.instance.saveData.stageNumber++; // add stage number
+            GlobalDataManager.instance.saveData.stageNumber++;
             GlobalDataManager.instance.ChangeSceneToBattle();
 		}
 	}
 
-	private void EndRewardScene() // Add selected card to current card list
+	// 선택된 카드를 현재 카드 목록에 추가
+	private void EndRewardScene()
 	{
 		if (selectedNewCardIndex == 0)
 		{
-            /*SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[selectedCurrentCardIndex];
-            cardData.cardName = randomKnightString;
-            cardData.level = GlobalDataManager.instance.saveData.stageNumber;*/
             GlobalDataManager.instance.saveData.currentCardList[selectedCurrentCardIndex]
                 = new SaveData.CardData(randomKnightString, GlobalDataManager.instance.saveData.stageNumber);
         }
 		else if (selectedNewCardIndex == 1)
 		{
-            /*SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[3 + selectedCurrentCardIndex];
-            cardData.cardName = randomWizardString;
-            cardData.level = GlobalDataManager.instance.saveData.stageNumber;*/
             GlobalDataManager.instance.saveData.currentCardList[3 + selectedCurrentCardIndex]
                 = new SaveData.CardData(randomWizardString, GlobalDataManager.instance.saveData.stageNumber);
         }
 		else if (selectedNewCardIndex == 2)
 		{
-            /*SaveData.CardData cardData = GlobalDataManager.instance.saveData.currentCardList[6 + selectedCurrentCardIndex];
-            cardData.cardName = randomPriestString;
-            cardData.level = GlobalDataManager.instance.saveData.stageNumber;*/
             GlobalDataManager.instance.saveData.currentCardList[6 + selectedCurrentCardIndex]
                 = new SaveData.CardData(randomPriestString, GlobalDataManager.instance.saveData.stageNumber);
         }

@@ -48,7 +48,6 @@ public class MonsterBase : MonoBehaviour
         monsterSkillEffect = Resources.Load("Prefabs/Effect/MonsterAttackEffect") as GameObject;
 		monsterSkillText = Resources.Load("Prefabs/Effect/MonsterSkillText") as GameObject;
 
-		// base -> current
 		maxHp = baseMaxHp;
 		currentHp = maxHp;
 		turnLeftUntilAttack = attackTurnInterval;
@@ -76,7 +75,6 @@ public class MonsterBase : MonoBehaviour
 				Vector3 target = BattleManager.instance.monsterPos.position;
 				target.y -= 1;
 				transform.position = Vector3.Lerp(transform.position, target, step);
-				//transform.position = Vector3.MoveTowards(transform.position, target, step);
 				speed += 2;
 
 				// 사운드

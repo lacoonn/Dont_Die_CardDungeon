@@ -9,10 +9,6 @@ public class SoundManager : MonoBehaviour
 	public GameObject flipCard;
 	public GameObject attack;
 
-	//public AudioClip flipCard;
-	
-	//AudioSource myAudio;
-
 	private void Awake()
 	{
 		if (instance == null)
@@ -24,7 +20,6 @@ public class SoundManager : MonoBehaviour
 
 	// Use this for initialization
 	void Start () {
-		//myAudio = GetComponent<AudioSource>();
 
 	}
 	
@@ -35,7 +30,6 @@ public class SoundManager : MonoBehaviour
 
 	public void PlayFlipCardSound()
 	{
-		//myAudio.PlayOneShot(flipCard);
 		Instantiate(flipCard);
 	}
 

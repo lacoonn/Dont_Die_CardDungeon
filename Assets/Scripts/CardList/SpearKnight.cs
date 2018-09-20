@@ -24,8 +24,5 @@ public class SpearKnight : CardBase
 		spearKnightScript.attackPoint += (cardScript0.attackPoint + cardScript2.attackPoint);
 		cardScript0.attackPoint = 0;
 		cardScript2.attackPoint = 0;
-
-
-		//BattleManager.instance.conditionList.Add(new Freezed(ConditionBase.ApplicationTarget.Monster, 1));
 	}
 }

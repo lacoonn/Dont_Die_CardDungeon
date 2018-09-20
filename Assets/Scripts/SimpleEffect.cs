@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SimpleEffect : MonoBehaviour {
-    public float duration;
+    
+	public float duration;
+
 	// Use this for initialization
 	void Start () {
         Destroy(gameObject, duration);

@@ -12,8 +12,6 @@ public class Golem : MonsterBase
 		baseArmor = 50;
 		attackTurnInterval = 4;
 
-		// debrisDamage = *;
-
 		monsterName = "골렘";
 		description = "진흙으로 빚어진 골렘입니다. 피격 시 파편이 튀어 " + debrisDamage + "의 피해를 줍니다.";
 	}

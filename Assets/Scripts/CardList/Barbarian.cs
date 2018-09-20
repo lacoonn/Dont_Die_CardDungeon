@@ -16,6 +16,5 @@ public class Barbarian : CardBase {
     override public void ApplyLeaderEffect()
     {
         attackPoint = (int)(attackPoint * 1.5);
-        //healPoint = (int)(healPoint * 1.5);
     }
 }
